@@ -15,7 +15,6 @@ public class StorageServiceImpl implements StorageService {
     @Value("${cloud.bucketName}")
     private String bucketName;
 
-
     private final Storage storage;
 
     public StorageServiceImpl(Storage storage) {
@@ -36,6 +35,6 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void deleteFile(String key) {
-
+        storage.delete(bucketName, key);
     }
 }

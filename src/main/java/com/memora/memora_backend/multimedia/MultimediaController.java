@@ -8,6 +8,8 @@ import java.util.List;
 @RequestMapping("/multimedia")
 public class MultimediaController {
 
+
+
     private final MultimediaService multimediaService;
 
     public MultimediaController(MultimediaService multimediaService) {
@@ -26,6 +28,31 @@ public class MultimediaController {
 
     @PostMapping
     public Multimedia create(@RequestBody Multimedia media) {
+
+        /*
+            Example to data storage for the multimedia db and cloud data
+            String objectKey = "users/" + userId + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+
+            // 1. upload to GCS
+            storage.create(
+                BlobInfo.newBuilder(bucketName, objectKey)
+                        .setContentType(file.getContentType())
+                        .build(),
+                file.getBytes()
+            );
+
+            // 2. save metadata to DB
+            StoredFile storedFile = new StoredFile();
+            storedFile.setOwnerUserId(userId);
+            storedFile.setBucketName(bucketName);
+            storedFile.setObjectKey(objectKey);
+            storedFile.setOriginalFileName(file.getOriginalFilename());
+            storedFile.setContentType(file.getContentType());
+            storedFile.setSize(file.getSize());
+            storedFile.setStatus("READY");
+            storedFileRepository.save(storedFile);
+        */
+
         return multimediaService.save(media);
     }
 
