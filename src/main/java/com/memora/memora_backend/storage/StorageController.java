@@ -1,6 +1,7 @@
 package com.memora.memora_backend.storage;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
+@RequestMapping(path = "/storage", produces = MediaType.APPLICATION_JSON_VALUE)
 public class StorageController {
 
     private final StorageService storageService;
@@ -28,6 +30,12 @@ public class StorageController {
         byte[] fileBytes = storageService.downloadFile(key);
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=" + key).body(fileBytes);
+    }
+
+    @GetMapping("/{key}/url")
+    public ResponseEntity<String> getSignedUrl(@PathVariable String key) {
+        String url = storageService.getDownloadUrl(key);
+        return ResponseEntity.ok(url);
     }
 
 }

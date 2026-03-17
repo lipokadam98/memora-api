@@ -1,14 +1,13 @@
 package com.memora.memora_backend.multimedia;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/multimedia")
+@RequestMapping(path = "/multimedia", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MultimediaController {
-
-
 
     private final MultimediaService multimediaService;
 
@@ -56,7 +55,7 @@ public class MultimediaController {
         return multimediaService.save(media);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public Multimedia update(@RequestBody Multimedia multimedia) {
         return multimediaService.update(multimedia);
     }

@@ -39,6 +39,9 @@ public class Multimedia {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Transient
+    private byte[] fileData;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now();

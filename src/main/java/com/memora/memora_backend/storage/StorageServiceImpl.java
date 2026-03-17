@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class StorageServiceImpl implements StorageService {
@@ -37,4 +39,20 @@ public class StorageServiceImpl implements StorageService {
     public void deleteFile(String key) {
         storage.delete(bucketName, key);
     }
+
+    @Override
+    public String getDownloadUrl(String key) {
+        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, key).build();
+
+        URL url = storage.signUrl(
+                blobInfo,
+                15, // expiration
+                TimeUnit.MINUTES,
+                Storage.SignUrlOption.withV4Signature()
+        );
+
+        return url.toString();
+    }
+
+
 }
