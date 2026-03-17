@@ -3,6 +3,7 @@ package com.memora.memora_backend.user;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+//TODO Use DTO to minimize data and to make it easier to use
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {

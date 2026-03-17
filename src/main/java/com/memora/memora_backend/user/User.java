@@ -1,5 +1,6 @@
 package com.memora.memora_backend.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.memora.memora_backend.multimedia.Multimedia;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,7 +36,9 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    //This can be removed once DTO is used
+    @JsonIgnore
     private List<Multimedia> multimedia;
 
     @PrePersist

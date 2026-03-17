@@ -35,7 +35,7 @@ public class Multimedia {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -45,6 +45,7 @@ public class Multimedia {
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     @PreUpdate

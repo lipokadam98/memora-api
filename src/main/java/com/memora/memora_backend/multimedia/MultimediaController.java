@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//TODO Return and accept only DTO to minimize data and to make it easier to use
 @RestController
 @RequestMapping(path = "/multimedia", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MultimediaController {
