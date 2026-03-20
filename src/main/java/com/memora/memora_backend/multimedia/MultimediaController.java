@@ -1,8 +1,13 @@
 package com.memora.memora_backend.multimedia;
 
+import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
+import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.core.io.Resource;
 import java.util.List;
 
 //TODO Return and accept only DTO to minimize data and to make it easier to use
@@ -17,7 +22,7 @@ public class MultimediaController {
     }
 
     @GetMapping
-    public List<Multimedia> getAll(){
+    public List<MultimediaResponseDto> getAll(){
         return multimediaService.findAll();
     }
 
@@ -26,34 +31,10 @@ public class MultimediaController {
         return multimediaService.findById(id);
     }
 
-    @PostMapping
-    public Multimedia create(@RequestBody Multimedia media) {
-
-        /*
-            Example to data storage for the multimedia db and cloud data
-            String objectKey = "users/" + userId + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
-
-            // 1. upload to GCS
-            storage.create(
-                BlobInfo.newBuilder(bucketName, objectKey)
-                        .setContentType(file.getContentType())
-                        .build(),
-                file.getBytes()
-            );
-
-            // 2. save metadata to DB
-            StoredFile storedFile = new StoredFile();
-            storedFile.setOwnerUserId(userId);
-            storedFile.setBucketName(bucketName);
-            storedFile.setObjectKey(objectKey);
-            storedFile.setOriginalFileName(file.getOriginalFilename());
-            storedFile.setContentType(file.getContentType());
-            storedFile.setSize(file.getSize());
-            storedFile.setStatus("READY");
-            storedFileRepository.save(storedFile);
-        */
-
-        return multimediaService.save(media);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Multimedia create(@RequestPart("file") MultipartFile file,
+                             @RequestPart("media") MultimediaRequestDto dto) {
+        return multimediaService.save(dto,file);
     }
 
     @PutMapping
@@ -64,5 +45,14 @@ public class MultimediaController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         multimediaService.delete(id);
+    }
+
+    @GetMapping("/{id}/thumbnail")
+    public ResponseEntity<Resource> getThumbnail(@PathVariable Long id) {
+        var resource = multimediaService.getThumbnail(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(resource);
     }
 }

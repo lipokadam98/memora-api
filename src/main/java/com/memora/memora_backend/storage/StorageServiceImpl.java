@@ -1,5 +1,6 @@
 package com.memora.memora_backend.storage;
 
+import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -8,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.channels.Channels;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -30,9 +33,9 @@ public class StorageServiceImpl implements StorageService {
         storage.create(blobInfo, file.getBytes());
     }
 
-    @Override
-    public byte[] downloadFile(String key) {
-        return storage.readAllBytes(bucketName, key);
+    public InputStream downloadFile(String key) {
+        ReadChannel reader = storage.reader(bucketName, key);
+        return Channels.newInputStream(reader);
     }
 
     @Override

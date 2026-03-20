@@ -2,12 +2,16 @@ package com.memora.memora_backend.multimedia;
 
 import com.memora.memora_backend.user.User;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "multimedia")
 public class Multimedia {
     @Id
@@ -38,9 +42,6 @@ public class Multimedia {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @Transient
-    private byte[] fileData;
 
     @PrePersist
     public void prePersist() {
