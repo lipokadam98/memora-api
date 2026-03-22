@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 public interface StorageService {
     void uploadFile(MultipartFile file, String key) throws IOException;
+    void uploadFile(byte[] file, String key) throws IOException;
     InputStream downloadFile(String key);
     void deleteFile(String key);
     String getDownloadUrl(String key);

@@ -11,7 +11,8 @@ public interface MultimediaService {
     MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file);
     MultimediaResponseDto findById(Long id);
     void delete(Long id);
-    MultimediaResponseDto update(Long id, MultipartFile file, MultimediaRequestDto multimedia);
+    MultimediaResponseDto update(Long id, MultipartFile file);
     List<MultimediaResponseDto> findAll();
-    Resource downloadMultimedia(Long id);
+    Resource downloadThumbnail(Long id);
+    Resource downloadContent(Long id);
 }

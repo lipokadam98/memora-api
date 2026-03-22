@@ -21,25 +21,38 @@ public class MultimediaServiceImpl implements MultimediaService{
 
     private final MultimediaMapper multimediaMapper;
 
+    private final MultimediaProcessingService multimediaProcessingService;
+
+
+
     public MultimediaServiceImpl(MultimediaRepository multimediaRepository,
                                  StorageService storageService,
-                                 MultimediaMapper multimediaMapper) {
+                                 MultimediaMapper multimediaMapper,
+                                 MultimediaProcessingService multimediaProcessingService) {
         this.multimediaRepository = multimediaRepository;
         this.storageService = storageService;
         this.multimediaMapper = multimediaMapper;
+        this.multimediaProcessingService = multimediaProcessingService;
     }
 
     @Override
     public MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file) {
-        var savedData = multimediaRepository.save(multimediaMapper.toMultimedia(multimediaRequestDto,file));
-        var multimediaResponseDto = multimediaMapper.toMultimediaResponseDto(savedData);
+        var savedData = multimediaRepository.save(
+                multimediaMapper.toMultimedia(multimediaRequestDto, file)
+        );
+
         try {
-            this.storageService.uploadFile(file,savedData.getObjectKey());
-        } catch(Exception e){
+            storageService.uploadFile(file, savedData.getObjectKey());
+
+            byte[] thumbnailBytes = multimediaProcessingService.createThumbnail(file);
+
+            storageService.uploadFile(thumbnailBytes, savedData.getThumbnailObjectKey());
+
+            return multimediaMapper.toMultimediaResponseDto(savedData);
+        } catch (Exception e) {
             multimediaRepository.delete(savedData);
-            throw new RuntimeException("Error uploading file");
+            throw new RuntimeException("Error uploading image", e);
         }
-        return multimediaResponseDto;
     }
 
     @Override
@@ -62,11 +75,15 @@ public class MultimediaServiceImpl implements MultimediaService{
     }
 
     @Override
-    public MultimediaResponseDto update(Long id,MultipartFile file,MultimediaRequestDto multimedia) {
-        var multimediaToUpdate = multimediaMapper.toMultimedia(multimedia,file);
-        multimediaToUpdate.setId(id);
-        storageService.deleteFile(multimediaToUpdate.getObjectKey());
-        var savedData = multimediaRepository.save(multimediaToUpdate);
+    public MultimediaResponseDto update(Long id,MultipartFile file) {
+        //TODO Update needs to be refactored to use the same logic as the create method
+        var multimedia = multimediaRepository.findById(id).orElse(null);
+        if(multimedia == null){
+            throw new RuntimeException("Multimedia not found");
+        }
+
+        storageService.deleteFile(multimedia.getObjectKey());
+        var savedData = multimediaRepository.save(multimedia);
         return multimediaMapper.toMultimediaResponseDto(savedData);
     }
 
@@ -85,7 +102,16 @@ public class MultimediaServiceImpl implements MultimediaService{
     }
 
     @Override
-    public Resource downloadMultimedia(Long id) {
+    public Resource downloadThumbnail(Long id) {
+        var multimedia = multimediaRepository.findById(id).orElse(null);
+        if(multimedia == null){
+            throw new RuntimeException("Multimedia not found");
+        }
+        return new InputStreamResource(storageService.downloadFile(multimedia.getThumbnailObjectKey()));
+    }
+
+    @Override
+    public Resource downloadContent(Long id) {
         var multimedia = multimediaRepository.findById(id).orElse(null);
         if(multimedia == null){
             throw new RuntimeException("Multimedia not found");

@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class MultimediaResponseDto {
     private Long id;
-    private String imageUrl;
+    private String contentUrl;
+    private String thumbnailUrl;
 }

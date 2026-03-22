@@ -33,6 +33,9 @@ public class Multimedia {
     @Column(name = "object_key", nullable = false)
     private String objectKey;
 
+    @Column(name = "thumbnail_object_key", nullable = false)
+    private String thumbnailObjectKey;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

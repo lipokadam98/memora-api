@@ -38,9 +38,8 @@ public class MultimediaController {
 
     @PutMapping("/{id}")
     public MultimediaResponseDto update(@PathVariable Long id,
-                                        @RequestPart("file") MultipartFile file,
-                                        @RequestPart("media") MultimediaRequestDto dto) {
-        return multimediaService.update(id,file,dto);
+                                        @RequestPart("file") MultipartFile file) {
+        return multimediaService.update(id,file);
     }
 
     @DeleteMapping("/{id}")
@@ -50,7 +49,16 @@ public class MultimediaController {
 
     @GetMapping("/{id}/thumbnail")
     public ResponseEntity<Resource> getThumbnail(@PathVariable Long id) {
-        var resource = multimediaService.downloadMultimedia(id);
+        var resource = multimediaService.downloadThumbnail(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(resource);
+    }
+
+    @GetMapping("/{id}/content")
+    public ResponseEntity<Resource> getContent(@PathVariable Long id) {
+        var resource = multimediaService.downloadContent(id);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)

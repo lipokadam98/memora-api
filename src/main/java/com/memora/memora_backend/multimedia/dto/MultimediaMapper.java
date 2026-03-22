@@ -19,7 +19,8 @@ public class MultimediaMapper {
     public MultimediaResponseDto toMultimediaResponseDto(Multimedia multimedia) {
         MultimediaResponseDto dto = new MultimediaResponseDto();
         dto.setId(multimedia.getId());
-        dto.setImageUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/thumbnail");
+        dto.setContentUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/content");
+        dto.setThumbnailUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/thumbnail");
         return dto;
     }
 
@@ -31,6 +32,7 @@ public class MultimediaMapper {
         multimedia.setContentType(file.getContentType());
         multimedia.setOriginalFileName(file.getOriginalFilename());
         multimedia.setUser(dto.getUser());
+        multimedia.setThumbnailObjectKey(objectKey + "-thumbnail");
         multimedia.setObjectKey(objectKey);
         return multimedia;
     }

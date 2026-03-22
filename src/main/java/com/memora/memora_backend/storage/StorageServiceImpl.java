@@ -33,6 +33,13 @@ public class StorageServiceImpl implements StorageService {
         storage.create(blobInfo, file.getBytes());
     }
 
+    @Override
+    public void uploadFile(byte[] file, String key) throws IOException {
+        BlobId blobId = BlobId.of(bucketName, key);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+        storage.create(blobInfo, file);
+    }
+
     public InputStream downloadFile(String key) {
         ReadChannel reader = storage.reader(bucketName, key);
         return Channels.newInputStream(reader);
