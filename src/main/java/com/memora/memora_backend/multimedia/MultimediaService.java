@@ -8,10 +8,10 @@ import org.springframework.core.io.Resource;
 import java.util.List;
 
 public interface MultimediaService {
-    Multimedia save(MultimediaRequestDto multimediaRequestDto, MultipartFile file);
-    Multimedia findById(Long id);
+    MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file);
+    MultimediaResponseDto findById(Long id);
     void delete(Long id);
-    Multimedia update(Multimedia multimedia);
+    MultimediaResponseDto update(Long id, MultipartFile file, MultimediaRequestDto multimedia);
     List<MultimediaResponseDto> findAll();
-    Resource getThumbnail(Long id);
+    Resource downloadMultimedia(Long id);
 }

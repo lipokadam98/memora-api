@@ -1,74 +1,73 @@
 package com.memora.memora_backend.multimedia;
 
+import com.memora.memora_backend.multimedia.dto.MultimediaMapper;
 import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
 import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
 import com.memora.memora_backend.storage.StorageService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.springframework.core.io.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class MultimediaServiceImpl implements MultimediaService{
-
-    @Value("${cloud.bucketName}")
-    private String bucketName;
-
-    @Value("${base-url}")
-    private String baseUrl;
 
     private final MultimediaRepository multimediaRepository;
 
     private final StorageService storageService;
 
+    private final MultimediaMapper multimediaMapper;
+
     public MultimediaServiceImpl(MultimediaRepository multimediaRepository,
-                                 StorageService storageService) {
+                                 StorageService storageService,
+                                 MultimediaMapper multimediaMapper) {
         this.multimediaRepository = multimediaRepository;
         this.storageService = storageService;
+        this.multimediaMapper = multimediaMapper;
     }
 
     @Override
-    public Multimedia save(MultimediaRequestDto multimediaRequestDto, MultipartFile file) {
-        String objectKey = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        Multimedia multimedia = new Multimedia();
-        multimedia.setBucketName(bucketName);
-        multimedia.setSize(file.getSize());
-        multimedia.setContentType(file.getContentType());
-        multimedia.setOriginalFileName(file.getOriginalFilename());
-        multimedia.setUser(multimediaRequestDto.getUser());
-        multimedia.setObjectKey(objectKey);
-
-        // TODO error handling for file upload
-        var savedData = multimediaRepository.save(multimedia);
-
+    public MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file) {
+        var savedData = multimediaRepository.save(multimediaMapper.toMultimedia(multimediaRequestDto,file));
+        var multimediaResponseDto = multimediaMapper.toMultimediaResponseDto(savedData);
         try {
-            this.storageService.uploadFile(file,objectKey);
+            this.storageService.uploadFile(file,savedData.getObjectKey());
         } catch(Exception e){
             multimediaRepository.delete(savedData);
             throw new RuntimeException("Error uploading file");
         }
-
-        return savedData;
+        return multimediaResponseDto;
     }
 
     @Override
-    public Multimedia findById(Long id) {
-        return multimediaRepository.findById(id).orElse(null);
+    public MultimediaResponseDto findById(Long id) {
+        var multimedia = multimediaRepository.findById(id).orElse(null);
+        if(multimedia == null){
+            throw new RuntimeException("Multimedia not found");
+        }
+        return multimediaMapper.toMultimediaResponseDto(multimedia);
     }
 
     @Override
     public void delete(Long id) {
+        var multimedia = multimediaRepository.findById(id).orElse(null);
+        if(multimedia == null){
+            throw new RuntimeException("Multimedia not found");
+        }
         multimediaRepository.deleteById(id);
+        storageService.deleteFile(multimedia.getObjectKey());
     }
 
     @Override
-    public Multimedia update(Multimedia multimedia) {
-        return multimediaRepository.save(multimedia);
+    public MultimediaResponseDto update(Long id,MultipartFile file,MultimediaRequestDto multimedia) {
+        var multimediaToUpdate = multimediaMapper.toMultimedia(multimedia,file);
+        multimediaToUpdate.setId(id);
+        storageService.deleteFile(multimediaToUpdate.getObjectKey());
+        var savedData = multimediaRepository.save(multimediaToUpdate);
+        return multimediaMapper.toMultimediaResponseDto(savedData);
     }
 
     @Override
@@ -78,18 +77,19 @@ public class MultimediaServiceImpl implements MultimediaService{
         var multimediaResponseDtoList = new ArrayList<MultimediaResponseDto>();
 
         for(Multimedia multimedia : multimediaList){
-            MultimediaResponseDto multimediaResponseDto = new MultimediaResponseDto();
-            multimediaResponseDto.setId(multimedia.getId());
+            var multimediaResponseDto = multimediaMapper.toMultimediaResponseDto(multimedia);
             multimediaResponseDtoList.add(multimediaResponseDto);
-            multimediaResponseDto.setImageUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/thumbnail");
         }
 
         return multimediaResponseDtoList;
     }
 
     @Override
-    public Resource getThumbnail(Long id) {
-        Multimedia multimedia = findById(id);
+    public Resource downloadMultimedia(Long id) {
+        var multimedia = multimediaRepository.findById(id).orElse(null);
+        if(multimedia == null){
+            throw new RuntimeException("Multimedia not found");
+        }
         return new InputStreamResource(storageService.downloadFile(multimedia.getObjectKey()));
     }
 
