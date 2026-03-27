@@ -30,7 +30,7 @@ public class MultimediaProcessingService {
         return outputStream.toByteArray();
     }
 
-    //This is maybe good enough for now, but it has limitations for the rotation, and it can only handle mp4 files
+    //TODO This is maybe good enough for now, but it has limitations for the rotation, and it can only handle mp4 files
     public byte[] createVideoThumbnail(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Video file is empty.");

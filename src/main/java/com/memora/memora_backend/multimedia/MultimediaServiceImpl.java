@@ -36,7 +36,7 @@ public class MultimediaServiceImpl implements MultimediaService{
         this.multimediaProcessingService = multimediaProcessingService;
     }
 
-    //TODO Add support for video and multiple files
+    //TODO Add support multiple files
     @Override
     public MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file) {
         var savedData = multimediaRepository.save(
