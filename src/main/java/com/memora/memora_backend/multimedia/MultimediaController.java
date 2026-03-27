@@ -58,10 +58,11 @@ public class MultimediaController {
 
     @GetMapping("/{id}/content")
     public ResponseEntity<Resource> getContent(@PathVariable Long id) {
-        var resource = multimediaService.downloadContent(id);
+        var multimedia = multimediaService.findById(id);
+        var resource = multimediaService.downloadContent(multimedia.getObjectKey());
 
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(MediaType.parseMediaType(multimedia.getContentType()))
                 .body(resource);
     }
 }

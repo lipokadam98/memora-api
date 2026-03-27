@@ -7,4 +7,6 @@ public class MultimediaResponseDto {
     private Long id;
     private String contentUrl;
     private String thumbnailUrl;
+    private String contentType;
+    private String objectKey;
 }

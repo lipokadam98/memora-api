@@ -10,7 +10,7 @@ import java.io.IOException;
 @Service
 public class MultimediaProcessingService {
 
-    public byte[] createThumbnail(MultipartFile file) throws IOException {
+    public byte[] createImageThumbnail(MultipartFile file) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         Thumbnails.of(file.getInputStream())
@@ -20,5 +20,10 @@ public class MultimediaProcessingService {
                 .toOutputStream(outputStream);
 
         return outputStream.toByteArray();
+    }
+
+    public byte[] createVideoThumbnail(MultipartFile file) throws IOException {
+        //TODO Implement video thumbnail creation
+        return new byte[0];
     }
 }

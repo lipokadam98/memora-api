@@ -21,6 +21,8 @@ public class MultimediaMapper {
         dto.setId(multimedia.getId());
         dto.setContentUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/content");
         dto.setThumbnailUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/thumbnail");
+        dto.setContentType(multimedia.getContentType());
+        dto.setObjectKey(multimedia.getObjectKey());
         return dto;
     }
 

@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class MultimediaServiceImpl implements MultimediaService{
         this.multimediaProcessingService = multimediaProcessingService;
     }
 
+    //TODO Add support for video and multiple files
     @Override
     public MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file) {
         var savedData = multimediaRepository.save(
@@ -44,13 +46,15 @@ public class MultimediaServiceImpl implements MultimediaService{
         try {
             storageService.uploadFile(file, savedData.getObjectKey());
 
-            byte[] thumbnailBytes = multimediaProcessingService.createThumbnail(file);
+            byte[] thumbnailBytes = createThumbnail(file);
 
             storageService.uploadFile(thumbnailBytes, savedData.getThumbnailObjectKey());
 
             return multimediaMapper.toMultimediaResponseDto(savedData);
         } catch (Exception e) {
             multimediaRepository.delete(savedData);
+            storageService.deleteFile(savedData.getObjectKey());
+            storageService.deleteFile(savedData.getThumbnailObjectKey());
             throw new RuntimeException("Error uploading image", e);
         }
     }
@@ -111,12 +115,26 @@ public class MultimediaServiceImpl implements MultimediaService{
     }
 
     @Override
-    public Resource downloadContent(Long id) {
-        var multimedia = multimediaRepository.findById(id).orElse(null);
-        if(multimedia == null){
-            throw new RuntimeException("Multimedia not found");
+    public Resource downloadContent(String objectKey) {
+        return new InputStreamResource(storageService.downloadFile(objectKey));
+    }
+
+    private byte[] createThumbnail(MultipartFile file) throws IOException {
+        String contentType = file.getContentType();
+
+        if (contentType == null) {
+            throw new IllegalArgumentException("File content type is missing");
         }
-        return new InputStreamResource(storageService.downloadFile(multimedia.getObjectKey()));
+
+        if (contentType.startsWith("image/")) {
+            return multimediaProcessingService.createImageThumbnail(file);
+        }
+
+        if (contentType.startsWith("video/")) {
+            return multimediaProcessingService.createVideoThumbnail(file);
+        }
+
+        throw new IllegalArgumentException("Unsupported file type: " + contentType);
     }
 
 }

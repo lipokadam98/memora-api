@@ -14,5 +14,5 @@ public interface MultimediaService {
     MultimediaResponseDto update(Long id, MultipartFile file);
     List<MultimediaResponseDto> findAll();
     Resource downloadThumbnail(Long id);
-    Resource downloadContent(Long id);
+    Resource downloadContent(String objectKey);
 }
