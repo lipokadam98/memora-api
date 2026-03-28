@@ -74,8 +74,9 @@ public class MultimediaServiceImpl implements MultimediaService{
         if(multimedia == null){
             throw new RuntimeException("Multimedia not found");
         }
-        multimediaRepository.deleteById(id);
         storageService.deleteFile(multimedia.getObjectKey());
+        storageService.deleteFile(multimedia.getThumbnailObjectKey());
+        multimediaRepository.deleteById(id);
     }
 
     @Override
