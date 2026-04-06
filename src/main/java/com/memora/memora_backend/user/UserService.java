@@ -1,7 +1,11 @@
 package com.memora.memora_backend.user;
 
+import com.memora.memora_backend.user.models.User;
+
+import java.util.Optional;
+
 public interface UserService {
-    User findByEmail(String email);
+    Optional<User> findByEmail(String email);
     User save(User user);
     User update(User user);
     void delete(Long id);
