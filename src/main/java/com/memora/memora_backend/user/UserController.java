@@ -1,6 +1,5 @@
 package com.memora.memora_backend.user;
 
-import com.memora.memora_backend.user.models.User;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,11 +22,6 @@ public class UserController {
     @GetMapping(path = "/{email}")
     public Optional<User> findByEmail(@PathVariable String email) {
         return userService.findByEmail(email);
-    }
-
-    @PostMapping
-    public User create(@RequestBody User user) {
-        return userService.save(user);
     }
 
     @PutMapping

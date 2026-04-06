@@ -1,6 +1,5 @@
 package com.memora.memora_backend.user;
 
-import com.memora.memora_backend.user.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
 package com.memora.memora_backend.multimedia;
 
-import com.memora.memora_backend.user.models.User;
+import com.memora.memora_backend.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

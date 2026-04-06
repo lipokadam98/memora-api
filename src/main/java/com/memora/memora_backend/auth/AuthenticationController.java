@@ -1,11 +1,11 @@
 package com.memora.memora_backend.auth;
 
-import com.memora.memora_backend.auth.responses.LoginResponse;
+import com.memora.memora_backend.auth.dto.LoginResponse;
 import com.memora.memora_backend.auth.jwt.JwtService;
-import com.memora.memora_backend.auth.models.LoginUserDto;
-import com.memora.memora_backend.auth.models.RegisterUserDto;
-import com.memora.memora_backend.user.models.User;
-import com.memora.memora_backend.user.models.UserDto;
+import com.memora.memora_backend.auth.dto.LoginUserDto;
+import com.memora.memora_backend.auth.dto.RegisterUserDto;
+import com.memora.memora_backend.user.User;
+import com.memora.memora_backend.user.dto.UserDto;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +42,7 @@ public class AuthenticationController {
 
         UserDto user = UserDto.builder()
                 .email(authenticatedUser.getEmail())
-                //.fullName(authenticatedUser.getFullName())
+                .fullName(authenticatedUser.getFullName())
                 .userName(authenticatedUser.getUsername())
                 .build();
 

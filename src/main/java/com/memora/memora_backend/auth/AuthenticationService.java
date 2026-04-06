@@ -1,10 +1,10 @@
 package com.memora.memora_backend.auth;
 
 import com.memora.memora_backend.user.UserRepository;
-import com.memora.memora_backend.auth.models.LoginUserDto;
-import com.memora.memora_backend.auth.models.RegisterUserDto;
-import com.memora.memora_backend.user.models.Role;
-import com.memora.memora_backend.user.models.User;
+import com.memora.memora_backend.auth.dto.LoginUserDto;
+import com.memora.memora_backend.auth.dto.RegisterUserDto;
+import com.memora.memora_backend.user.dto.Role;
+import com.memora.memora_backend.user.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,12 +31,12 @@ public class AuthenticationService {
 
     public User signup(RegisterUserDto input) {
         User user = User.builder()
-                //.fullName(input.getFullName())
+                .fullName(input.getFullName())
                 .email(input.getEmail())
                 //TODO add role support
                 .role(Role.ADMIN)
                 .enabled(true)
-                .passwordHash(passwordEncoder.encode(input.getPassword()))
+                .password(passwordEncoder.encode(input.getPassword()))
                 .build();
         return userRepository.save(user);
     }

@@ -1,4 +1,4 @@
-package com.memora.memora_backend.auth.models;
+package com.memora.memora_backend.auth.dto;
 
 import lombok.Data;
 

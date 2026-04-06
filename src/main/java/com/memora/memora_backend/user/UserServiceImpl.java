@@ -1,6 +1,5 @@
 package com.memora.memora_backend.user;
 
-import com.memora.memora_backend.user.models.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,11 +16,6 @@ public class UserServiceImpl implements UserService{
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
-    }
-
-    @Override
-    public User save(User user) {
-        return userRepository.save(user);
     }
 
     @Override

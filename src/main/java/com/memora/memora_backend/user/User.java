@@ -1,10 +1,10 @@
-package com.memora.memora_backend.user.models;
+package com.memora.memora_backend.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.memora.memora_backend.multimedia.Multimedia;
+import com.memora.memora_backend.user.dto.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -28,8 +28,11 @@ public class User implements UserDetails {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password_hash",nullable = false)
-    private String passwordHash;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+
+    @Column(name = "password",nullable = false)
+    private String password;
 
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -63,11 +66,6 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
-    }
-
-    @Override
-    public @Nullable String getPassword() {
-        return passwordHash;
     }
 
     @Override

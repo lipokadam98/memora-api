@@ -1,6 +1,6 @@
 package com.memora.memora_backend.multimedia.dto;
 
-import com.memora.memora_backend.user.models.User;
+import com.memora.memora_backend.user.User;
 import lombok.Data;
 
 @Data
