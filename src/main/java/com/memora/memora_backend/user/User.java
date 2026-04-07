@@ -52,6 +52,10 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Multimedia> multimedia;
 
+    public User(Long id){
+        this.id = id;
+    }
+
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now();
