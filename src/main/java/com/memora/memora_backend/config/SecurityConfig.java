@@ -1,6 +1,7 @@
 package com.memora.memora_backend.config;
 
 import com.memora.memora_backend.auth.jwt.JwtAuthenticationFilter;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -14,16 +15,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          AuthenticationProvider authenticationProvider) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.authenticationProvider = authenticationProvider;
-    }
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) {

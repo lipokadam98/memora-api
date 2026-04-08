@@ -2,6 +2,7 @@ package com.memora.memora_backend.multimedia;
 
 import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
 import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
+import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/multimedia", produces = MediaType.APPLICATION_JSON_VALUE)
+@AllArgsConstructor
 public class MultimediaController {
 
     private final MultimediaService multimediaService;
-
-    public MultimediaController(MultimediaService multimediaService) {
-        this.multimediaService = multimediaService;
-    }
 
     @GetMapping
     public List<MultimediaResponseDto> getAll(){

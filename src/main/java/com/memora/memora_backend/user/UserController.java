@@ -1,5 +1,6 @@
 package com.memora.memora_backend.user;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,13 +12,10 @@ import java.util.Optional;
 //TODO Use DTO to minimize data and to make it easier to use
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping(path = "/{email}")
     public Optional<User> findByEmail(@PathVariable String email) {

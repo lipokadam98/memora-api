@@ -42,6 +42,9 @@ public class Multimedia {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "upload_date", nullable = false)
+    private Instant uploadDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

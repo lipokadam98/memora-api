@@ -2,6 +2,7 @@ package com.memora.memora_backend.config;
 
 
 import com.memora.memora_backend.user.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,13 +14,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
+@AllArgsConstructor
 public class ApplicationConfig {
 
     private final UserRepository userRepository;
-
-    public ApplicationConfig(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Bean
     UserDetailsService userDetailsService(){

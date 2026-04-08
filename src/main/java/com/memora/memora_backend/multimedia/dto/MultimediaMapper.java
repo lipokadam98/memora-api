@@ -38,6 +38,7 @@ public class MultimediaMapper {
         multimedia.setUser(user);
         multimedia.setThumbnailObjectKey(objectKey + "-thumbnail");
         multimedia.setObjectKey(objectKey);
+        multimedia.setUploadDate(dto.getUploadDate().toInstant());
         return multimedia;
     }
 }

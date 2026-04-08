@@ -6,6 +6,7 @@ import com.memora.memora_backend.auth.dto.LoginUserDto;
 import com.memora.memora_backend.auth.dto.RegisterUserDto;
 import com.memora.memora_backend.user.User;
 import com.memora.memora_backend.user.dto.UserDto;
+import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,15 +21,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@AllArgsConstructor
 public class AuthenticationController {
     private final JwtService jwtService;
 
     private final AuthenticationService authenticationService;
-
-    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
-        this.jwtService = jwtService;
-        this.authenticationService = authenticationService;
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {

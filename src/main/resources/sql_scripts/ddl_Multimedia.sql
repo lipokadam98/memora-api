@@ -9,6 +9,7 @@ CREATE TABLE multimedia
     thumbnail_object_key VARCHAR(255)                            NOT NULL,
     created_at           TIMESTAMP WITHOUT TIME ZONE             NOT NULL,
     updated_at           TIMESTAMP WITHOUT TIME ZONE             NOT NULL,
+    upload_date          TIMESTAMP WITHOUT TIME ZONE             NOT NULL,
     user_id              BIGINT                                  NOT NULL,
     CONSTRAINT pk_multimedia PRIMARY KEY (id)
 );
