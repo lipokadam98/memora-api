@@ -8,7 +8,7 @@ import org.springframework.core.io.Resource;
 import java.util.List;
 
 public interface MultimediaService {
-    MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file);
+    List<MultimediaResponseDto> save(MultimediaRequestDto multimediaRequestDto, MultipartFile[] files);
     MultimediaResponseDto findById(Long id);
     void delete(Long id);
     MultimediaResponseDto update(Long id, MultipartFile file);

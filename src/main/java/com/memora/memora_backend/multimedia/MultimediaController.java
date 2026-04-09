@@ -29,9 +29,9 @@ public class MultimediaController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public MultimediaResponseDto create(@RequestPart("file") MultipartFile file,
+    public List<MultimediaResponseDto> create(@RequestPart("files") MultipartFile[] files,
                                         @RequestPart("media") MultimediaRequestDto dto) {
-        return multimediaService.save(dto,file);
+        return multimediaService.save(dto,files);
     }
 
     @PutMapping("/{id}")

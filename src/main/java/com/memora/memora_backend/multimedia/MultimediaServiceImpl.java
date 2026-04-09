@@ -36,26 +36,51 @@ public class MultimediaServiceImpl implements MultimediaService{
         this.multimediaProcessingService = multimediaProcessingService;
     }
 
-    //TODO Add support multiple files
     @Override
-    public MultimediaResponseDto save(MultimediaRequestDto multimediaRequestDto, MultipartFile file) {
-        var savedData = multimediaRepository.save(
-                multimediaMapper.toMultimedia(multimediaRequestDto, file)
-        );
+    public List<MultimediaResponseDto> save(MultimediaRequestDto multimediaRequestDto, MultipartFile[] files) {
+        if (files == null || files.length == 0) {
+            throw new IllegalArgumentException("At least one file is required");
+        }
+
+        List<Multimedia> savedEntities = new ArrayList<>();
 
         try {
-            storageService.uploadFile(file, savedData.getObjectKey());
+            for (MultipartFile file : files) {
+                var savedData = multimediaRepository.save(
+                        multimediaMapper.toMultimedia(multimediaRequestDto, file)
+                );
 
-            byte[] thumbnailBytes = createThumbnail(file);
+                storageService.uploadFile(file, savedData.getObjectKey());
 
-            storageService.uploadFile(thumbnailBytes, savedData.getThumbnailObjectKey());
+                byte[] thumbnailBytes = createThumbnail(file);
+                storageService.uploadFile(thumbnailBytes, savedData.getThumbnailObjectKey());
 
-            return multimediaMapper.toMultimediaResponseDto(savedData);
+                savedEntities.add(savedData);
+            }
+
+            return savedEntities.stream()
+                    .map(multimediaMapper::toMultimediaResponseDto)
+                    .toList();
+
         } catch (Exception e) {
-            multimediaRepository.delete(savedData);
-            storageService.deleteFile(savedData.getObjectKey());
-            storageService.deleteFile(savedData.getThumbnailObjectKey());
-            throw new RuntimeException("Error uploading image", e);
+            for (Multimedia savedData : savedEntities) {
+                try {
+                    multimediaRepository.delete(savedData);
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    storageService.deleteFile(savedData.getObjectKey());
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    storageService.deleteFile(savedData.getThumbnailObjectKey());
+                } catch (Exception ignored) {
+                }
+            }
+
+            throw new RuntimeException("Error uploading images", e);
         }
     }
 
