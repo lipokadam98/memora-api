@@ -19,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+
 @RestController
 @RequestMapping(path = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
@@ -50,7 +52,7 @@ public class AuthenticationController {
         LoginResponse loginResponse = LoginResponse.builder()
                 .token(jwtToken)
                 .user(user)
-                .expiresIn(jwtService.getExpirationTime())
+                .expiresAt(new Date(System.currentTimeMillis() + jwtService.getExpirationTime()))
                 .build();
 
         return ResponseEntity.ok(loginResponse);
