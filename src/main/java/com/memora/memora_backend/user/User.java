@@ -48,6 +48,7 @@ public class User implements UserDetails {
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+
     //This can be removed once DTO is used
     @JsonIgnore
     private List<Multimedia> multimedia;

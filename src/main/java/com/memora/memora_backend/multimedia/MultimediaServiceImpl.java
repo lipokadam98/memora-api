@@ -39,6 +39,12 @@ public class MultimediaServiceImpl implements MultimediaService{
         this.multimediaProcessingService = multimediaProcessingService;
     }
 
+    /**
+     * Save a multimedia and its thumbnail to the database and to the storage service
+     * @param multimediaRequestDto the multimedia request dto
+     * @param files the files to save
+     * @return the saved multimedia response dto list
+     */
     @Override
     public List<MultimediaResponseDto> save(MultimediaRequestDto multimediaRequestDto, MultipartFile[] files) {
         if (files == null || files.length == 0) {
@@ -87,6 +93,11 @@ public class MultimediaServiceImpl implements MultimediaService{
         }
     }
 
+    /**
+     * Find a multimedia by id
+     * @param id the id of the multimedia
+     * @return the multimedia response dto
+     */
     @Override
     public MultimediaResponseDto findById(Long id) {
         var multimedia = multimediaRepository.findById(id).orElse(null);
@@ -96,6 +107,10 @@ public class MultimediaServiceImpl implements MultimediaService{
         return multimediaMapper.toMultimediaResponseDto(multimedia);
     }
 
+    /**
+     * Delete a multimedia and its thumbnail from the database and from the storage service
+     * @param id the id of the multimedia to delete
+     */
     @Override
     public void delete(Long id) {
         var multimedia = multimediaRepository.findById(id).orElse(null);
@@ -120,6 +135,12 @@ public class MultimediaServiceImpl implements MultimediaService{
         return multimediaMapper.toMultimediaResponseDto(savedData);
     }
 
+    /**
+     * Find all multimedia entities with pagination
+     * @param cursor the cursor to start from
+     * @param limit the number of entities to return
+     * @return the cursor page of multimedia entities
+     */
     @Override
     public CursorPage<MultimediaResponseDto> findAll(String cursor, int limit) {
 
@@ -127,9 +148,11 @@ public class MultimediaServiceImpl implements MultimediaService{
 
         List<Multimedia> results;
 
+        // If no cursor is provided, return entities paginated
         if (cursor == null) {
             results = multimediaRepository.findAllByOrderByUploadDateAscIdAsc(pageable);
         } else {
+            // Decode the cursor and find the next page of entities
             var decoded = CursorUtil.decode(cursor);
             results = multimediaRepository.findNextPage(
                     decoded.getLeft(),
@@ -144,7 +167,8 @@ public class MultimediaServiceImpl implements MultimediaService{
             results = results.subList(0, limit);
         }
 
-        var dtos = results.stream()
+        // Convert the entities to DTOs
+        var multimediaResponseDtoList = results.stream()
                 .map(multimediaMapper::toMultimediaResponseDto)
                 .toList();
 
@@ -155,9 +179,14 @@ public class MultimediaServiceImpl implements MultimediaService{
             nextCursor = CursorUtil.encode(last.getUploadDate(), last.getId());
         }
 
-        return new CursorPage<>(dtos, nextCursor, hasNext);
+        return new CursorPage<>(multimediaResponseDtoList, nextCursor, hasNext);
     }
 
+    /**
+     * Download the thumbnail of a multimedia
+     * @param id the id of the multimedia
+     * @return the thumbnail as a resource
+     */
     @Override
     public Resource downloadThumbnail(Long id) {
         var multimedia = multimediaRepository.findById(id).orElse(null);
@@ -167,11 +196,22 @@ public class MultimediaServiceImpl implements MultimediaService{
         return new InputStreamResource(storageService.downloadFile(multimedia.getThumbnailObjectKey()));
     }
 
+    /**
+     * Download the content of a multimedia
+     * @param objectKey the object key of the multimedia
+     * @return the multimedia content as a resource
+     */
     @Override
     public Resource downloadContent(String objectKey) {
         return new InputStreamResource(storageService.downloadFile(objectKey));
     }
 
+    /**
+     * Create a thumbnail for a given file
+     * @param file the file to create a thumbnail for
+     * @return the thumbnail as a byte array
+     * @throws IOException if there is an error creating the thumbnail
+     */
     private byte[] createThumbnail(MultipartFile file) throws IOException {
         String contentType = file.getContentType();
 
@@ -179,10 +219,12 @@ public class MultimediaServiceImpl implements MultimediaService{
             throw new IllegalArgumentException("File content type is missing");
         }
 
+        // Process the image file
         if (contentType.startsWith("image/")) {
             return multimediaProcessingService.createImageThumbnail(file);
         }
 
+        // Process the video file
         if (contentType.startsWith("video/")) {
             return multimediaProcessingService.createVideoThumbnail(file);
         }
