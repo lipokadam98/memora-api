@@ -1,11 +1,14 @@
 package com.memora.memora_backend.multimedia;
 
+import com.memora.memora_backend.cursor.CursorPage;
+import com.memora.memora_backend.cursor.CursorUtil;
 import com.memora.memora_backend.multimedia.dto.MultimediaMapper;
 import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
 import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
 import com.memora.memora_backend.storage.StorageService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -118,17 +121,41 @@ public class MultimediaServiceImpl implements MultimediaService{
     }
 
     @Override
-    public List<MultimediaResponseDto> findAll() {
+    public CursorPage<MultimediaResponseDto> findAll(String cursor, int limit) {
 
-        var multimediaList = multimediaRepository.findAll();
-        var multimediaResponseDtoList = new ArrayList<MultimediaResponseDto>();
+        var pageable = PageRequest.of(0, limit + 1);
 
-        for(Multimedia multimedia : multimediaList){
-            var multimediaResponseDto = multimediaMapper.toMultimediaResponseDto(multimedia);
-            multimediaResponseDtoList.add(multimediaResponseDto);
+        List<Multimedia> results;
+
+        if (cursor == null) {
+            results = multimediaRepository.findAllByOrderByUploadDateAscIdAsc(pageable);
+        } else {
+            var decoded = CursorUtil.decode(cursor);
+            results = multimediaRepository.findNextPage(
+                    decoded.getLeft(),
+                    decoded.getRight(),
+                    pageable
+            );
         }
 
-        return multimediaResponseDtoList;
+        boolean hasNext = results.size() > limit;
+
+        if (hasNext) {
+            results = results.subList(0, limit);
+        }
+
+        var dtos = results.stream()
+                .map(multimediaMapper::toMultimediaResponseDto)
+                .toList();
+
+        String nextCursor = null;
+
+        if (!results.isEmpty()) {
+            var last = results.getLast();
+            nextCursor = CursorUtil.encode(last.getUploadDate(), last.getId());
+        }
+
+        return new CursorPage<>(dtos, nextCursor, hasNext);
     }
 
     @Override

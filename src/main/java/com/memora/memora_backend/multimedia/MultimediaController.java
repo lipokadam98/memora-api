@@ -1,14 +1,15 @@
 package com.memora.memora_backend.multimedia;
 
+import com.memora.memora_backend.cursor.CursorPage;
 import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
 import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.springframework.core.io.Resource;
 import java.util.List;
 
 @RestController
@@ -19,8 +20,11 @@ public class MultimediaController {
     private final MultimediaService multimediaService;
 
     @GetMapping
-    public List<MultimediaResponseDto> getAll(){
-        return multimediaService.findAll();
+    public CursorPage<MultimediaResponseDto> getAll(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "25") int limit
+    ) {
+        return multimediaService.findAll(cursor, limit);
     }
 
     @GetMapping("/{id}")
