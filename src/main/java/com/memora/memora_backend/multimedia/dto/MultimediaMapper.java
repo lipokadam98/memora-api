@@ -12,17 +12,14 @@ import java.util.UUID;
 @Component
 public class MultimediaMapper {
 
-    @Value("${base-url}")
-    private String baseUrl;
-
     @Value("${cloud.bucketName}")
     private String bucketName;
 
     public MultimediaResponseDto toMultimediaResponseDto(Multimedia multimedia) {
         MultimediaResponseDto dto = new MultimediaResponseDto();
         dto.setId(multimedia.getId());
-        dto.setContentUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/content");
-        dto.setThumbnailUrl(baseUrl+"/multimedia/" + multimedia.getId() + "/thumbnail");
+        dto.setContentUrl("/multimedia/" + multimedia.getId() + "/content");
+        dto.setThumbnailUrl("/multimedia/" + multimedia.getId() + "/thumbnail");
         dto.setContentType(multimedia.getContentType());
         dto.setObjectKey(multimedia.getObjectKey());
         dto.setUploadDate(Date.from(multimedia.getUploadDate()));
