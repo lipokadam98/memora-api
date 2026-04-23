@@ -1,13 +1,17 @@
-# memora-api
+# 🚀 memora-api Deployment Guide
 
-# 1. Cloud SQL Instance létrehozása (a virtuális adatbázis-szerver)
-# Tipp: A tier (db-f1-micro) a legkisebb, költséghatékony méret
+## 1. Create Cloud SQL Instance (virtual database server)
+
+> 💡 Tip: `db-f1-micro` is the smallest and most cost-effective tier
+
+```bash
 gcloud sql instances create memora-db \
---database-version=POSTGRES_15 \
---tier=db-f1-micro \
---region=$REGION
+  --database-version=POSTGRES_15 \
+  --tier=db-f1-micro \
+  --region=$REGION
 
-# 2. Adatbázis létrehozása a létrehozott instance-on belül
+2. Create database
+
 gcloud sql databases create memora \
 --instance=memora-db
 
@@ -19,8 +23,7 @@ gcloud artifacts repositories create $REPO_NAME `
     --repository-format=docker `
 --location=$REGION
 
-Final steps:
-In project root:
+Final steps in project root:
 
 ./mvnw clean package -DskipTests
 
