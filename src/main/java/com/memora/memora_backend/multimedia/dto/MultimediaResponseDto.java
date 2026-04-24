@@ -12,4 +12,6 @@ public class MultimediaResponseDto {
     private String contentType;
     private String objectKey;
     private Date uploadDate;
+    private String signedUrl;
+    private String originalFileName;
 }

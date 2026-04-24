@@ -3,12 +3,12 @@ package com.memora.memora_backend.multimedia;
 import com.memora.memora_backend.cursor.CursorPage;
 import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
 import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
+import com.memora.memora_backend.multimedia.dto.ThumbnailCreationRequestDto;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class MultimediaController {
     @GetMapping
     public CursorPage<MultimediaResponseDto> getAll(
             @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "25") int limit
+            @RequestParam(defaultValue = "50") int limit
     ) {
         return multimediaService.findAll(cursor, limit);
     }
@@ -32,16 +32,14 @@ public class MultimediaController {
         return multimediaService.findById(id);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public List<MultimediaResponseDto> create(@RequestPart("files") MultipartFile[] files,
-                                        @RequestPart("media") MultimediaRequestDto dto) {
-        return multimediaService.save(dto,files);
+    @PostMapping
+    public List<MultimediaResponseDto> create(@RequestBody List<MultimediaRequestDto> multimediaRequestDtoList) {
+        return multimediaService.save(multimediaRequestDtoList);
     }
 
-    @PutMapping("/{id}")
-    public MultimediaResponseDto update(@PathVariable Long id,
-                                        @RequestPart("file") MultipartFile file) {
-        return multimediaService.update(id,file);
+    @PostMapping("/create-thumbnails")
+    public List<MultimediaResponseDto> createThumbnails(@RequestBody List<ThumbnailCreationRequestDto> thumbnailCreationRequestDtoList) {
+        return multimediaService.createThumbnails(thumbnailCreationRequestDtoList);
     }
 
     @DeleteMapping("/{id}")

@@ -5,23 +5,25 @@ import org.jcodec.api.FrameGrab;
 import org.jcodec.common.model.Picture;
 import org.jcodec.scale.AWTUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class MultimediaProcessingService {
 
-    public byte[] createImageThumbnail(MultipartFile file) throws IOException {
+    public byte[] createImageThumbnail(InputStream inputStream) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        Thumbnails.of(file.getInputStream())
+        Thumbnails.of(inputStream)
                 .size(300, 300)
                 .outputFormat("jpg")
                 .outputQuality(0.7)
@@ -30,33 +32,40 @@ public class MultimediaProcessingService {
         return outputStream.toByteArray();
     }
 
-    //TODO This is maybe good enough for now, but it has limitations for the rotation, and it can only handle mp4 files
-    public byte[] createVideoThumbnail(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Video file is empty.");
+    public byte[] createVideoThumbnailFromStream(InputStream videoStream) throws IOException {
+        if (videoStream == null) {
+            throw new IllegalArgumentException("Video stream cannot be null.");
         }
 
-        File tempFile = File.createTempFile("video-upload-", ".mp4");
+        // 1. Create a temporary path
+        // It is important to define the suffix so the OS/JCodec can recognize the video format
+        Path tempPath = Files.createTempFile("video-stream-", ".mp4");
 
         try {
-            file.transferTo(tempFile);
+            // 2. Stream the input directly to the temp file
+            // StandardCopyOption.REPLACE_EXISTING ensures we don't fail if the file name exists
+            Files.copy(videoStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
 
-            Picture picture = FrameGrab.getFrameFromFile(tempFile, 1);
+            // 3. Process the file from disk (as JCodec requires a File/SeekableByteChannel)
+            Picture picture = FrameGrab.getFrameFromFile(tempPath.toFile(), 1);
+            if (picture == null) {
+                throw new IOException("Could not extract frame from video.");
+            }
+
             BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
-
-            // Rotate if needed
             BufferedImage correctedImage = rotate90Clockwise(bufferedImage);
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(correctedImage, "jpg", baos);
-            return baos.toByteArray();
+            // 4. Write to output stream
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                ImageIO.write(correctedImage, "jpg", baos);
+                return baos.toByteArray();
+            }
 
         } catch (Exception e) {
-            throw new IOException("Failed to create video thumbnail.", e);
+            throw new IOException("Failed to create video thumbnail from stream.", e);
         } finally {
-            if (tempFile.exists() && !tempFile.delete()) {
-                tempFile.deleteOnExit();
-            }
+            // 5. Cleanup: Always delete the temporary file, even if an error occurred
+            Files.deleteIfExists(tempPath);
         }
     }
 

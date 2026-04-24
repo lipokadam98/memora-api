@@ -2,20 +2,21 @@ package com.memora.memora_backend.multimedia;
 
 import com.memora.memora_backend.cursor.CursorPage;
 import com.memora.memora_backend.cursor.CursorUtil;
-import com.memora.memora_backend.multimedia.dto.MultimediaMapper;
-import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
-import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
+import com.memora.memora_backend.multimedia.dto.*;
 import com.memora.memora_backend.storage.StorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class MultimediaServiceImpl implements MultimediaService{
 
@@ -39,58 +40,26 @@ public class MultimediaServiceImpl implements MultimediaService{
         this.multimediaProcessingService = multimediaProcessingService;
     }
 
-    /**
-     * Save a multimedia and its thumbnail to the database and to the storage service
-     * @param multimediaRequestDto the multimedia request dto
-     * @param files the files to save
-     * @return the saved multimedia response dto list
-     */
+    @Transactional
     @Override
-    public List<MultimediaResponseDto> save(MultimediaRequestDto multimediaRequestDto, MultipartFile[] files) {
-        if (files == null || files.length == 0) {
+    public List<MultimediaResponseDto> save(List<MultimediaRequestDto> multimediaRequestDtoList) {
+        if (multimediaRequestDtoList == null || multimediaRequestDtoList.isEmpty()) {
             throw new IllegalArgumentException("At least one file is required");
         }
 
-        List<Multimedia> savedEntities = new ArrayList<>();
+        // 1. Map DTOs to Entities
+        List<Multimedia> entities = multimediaRequestDtoList.stream()
+                .map(multimediaMapper::toMultimediaFromDto)
+                .toList();
 
-        try {
-            for (MultipartFile file : files) {
-                var savedData = multimediaRepository.save(
-                        multimediaMapper.toMultimedia(multimediaRequestDto, file)
-                );
+        // 2. Save all entities
+        // Spring Data JPA saves these in the same transaction
+        List<Multimedia> savedEntities = multimediaRepository.saveAll(entities);
 
-                storageService.uploadFile(file, savedData.getObjectKey());
-
-                byte[] thumbnailBytes = createThumbnail(file);
-                storageService.uploadFile(thumbnailBytes, savedData.getThumbnailObjectKey());
-
-                savedEntities.add(savedData);
-            }
-
-            return savedEntities.stream()
-                    .map(multimediaMapper::toMultimediaResponseDto)
-                    .toList();
-
-        } catch (Exception e) {
-            for (Multimedia savedData : savedEntities) {
-                try {
-                    multimediaRepository.delete(savedData);
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    storageService.deleteFile(savedData.getObjectKey());
-                } catch (Exception ignored) {
-                }
-
-                try {
-                    storageService.deleteFile(savedData.getThumbnailObjectKey());
-                } catch (Exception ignored) {
-                }
-            }
-
-            throw new RuntimeException("Error uploading images", e);
-        }
+        // 3. Return results
+        return savedEntities.stream()
+                .map(multimediaMapper::toMultimediaResponseDtoWithSignedUrl)
+                .toList();
     }
 
     /**
@@ -120,19 +89,6 @@ public class MultimediaServiceImpl implements MultimediaService{
         storageService.deleteFile(multimedia.getObjectKey());
         storageService.deleteFile(multimedia.getThumbnailObjectKey());
         multimediaRepository.deleteById(id);
-    }
-
-    @Override
-    public MultimediaResponseDto update(Long id,MultipartFile file) {
-        //TODO Update needs to be refactored to use the same logic as the create method
-        var multimedia = multimediaRepository.findById(id).orElse(null);
-        if(multimedia == null){
-            throw new RuntimeException("Multimedia not found");
-        }
-
-        storageService.deleteFile(multimedia.getObjectKey());
-        var savedData = multimediaRepository.save(multimedia);
-        return multimediaMapper.toMultimediaResponseDto(savedData);
     }
 
     /**
@@ -206,27 +162,51 @@ public class MultimediaServiceImpl implements MultimediaService{
         return new InputStreamResource(storageService.downloadFile(objectKey));
     }
 
-    /**
-     * Create a thumbnail for a given file
-     * @param file the file to create a thumbnail for
-     * @return the thumbnail as a byte array
-     * @throws IOException if there is an error creating the thumbnail
-     */
-    private byte[] createThumbnail(MultipartFile file) throws IOException {
-        String contentType = file.getContentType();
+    @Override
+    public List<MultimediaResponseDto> createThumbnails(List<ThumbnailCreationRequestDto> dtos) {
+        // 1. Filter and get IDs upfront
+        List<Long> ids = dtos.stream()
+                .filter(dto -> dto.getStatus() != UploadStatus.FAILED)
+                .map(ThumbnailCreationRequestDto::getId)
+                .toList();
 
+        // 2. Fetch all required entities in ONE query
+        List<Multimedia> multimediaList = multimediaRepository.findAllById(ids);
+        List<Multimedia> successfullyProcessed = new ArrayList<>();
+
+        // 3. Process each item (with error isolation)
+        for (Multimedia multimedia : multimediaList) {
+            try {
+                var objectKey = multimedia.getObjectKey();
+
+                try (InputStream inputStream = storageService.downloadFile(objectKey)) {
+                    var thumbnailByteArray = createThumbnailByteArray(multimedia.getContentType(), inputStream);
+                    storageService.uploadFile(thumbnailByteArray, multimedia.getThumbnailObjectKey());
+                    successfullyProcessed.add(multimedia);
+                }
+            } catch (Exception e) {
+                // Log the error but continue processing the rest of the list
+                log.error("Failed to create thumbnail for ID: {}", multimedia.getId(), e);
+            }
+        }
+
+        return successfullyProcessed.stream()
+                .map(multimediaMapper::toMultimediaResponseDto)
+                .toList();
+    }
+
+
+    private byte[] createThumbnailByteArray(String contentType, InputStream inputStream) throws IOException {
         if (contentType == null) {
             throw new IllegalArgumentException("File content type is missing");
         }
 
-        // Process the image file
         if (contentType.startsWith("image/")) {
-            return multimediaProcessingService.createImageThumbnail(file);
+            return multimediaProcessingService.createImageThumbnail(inputStream);
         }
 
-        // Process the video file
         if (contentType.startsWith("video/")) {
-            return multimediaProcessingService.createVideoThumbnail(file);
+            return multimediaProcessingService.createVideoThumbnailFromStream(inputStream);
         }
 
         throw new IllegalArgumentException("Unsupported file type: " + contentType);

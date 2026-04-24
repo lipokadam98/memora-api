@@ -9,4 +9,7 @@ import java.util.Date;
 public class MultimediaRequestDto {
     private UserDto user;
     private Date uploadDate;
+    private long size;
+    private String contentType;
+    private String originalFileName;
 }
