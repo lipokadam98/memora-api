@@ -21,10 +21,11 @@ public class MultimediaController {
 
     @GetMapping
     public CursorPage<MultimediaResponseDto> getAll(
+            @RequestParam Long userId,
             @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "50") int limit
+            @RequestParam(defaultValue = "20") int limit
     ) {
-        return multimediaService.findAll(cursor, limit);
+        return multimediaService.findAll(userId,cursor, limit);
     }
 
     @GetMapping("/{id}")

@@ -24,8 +24,8 @@ public class MultimediaMapper {
     public MultimediaResponseDto toMultimediaResponseDto(Multimedia multimedia) {
         MultimediaResponseDto dto = new MultimediaResponseDto();
         dto.setId(multimedia.getId());
-        dto.setContentUrl("/multimedia/" + multimedia.getId() + "/content");
-        dto.setThumbnailUrl("/multimedia/" + multimedia.getId() + "/thumbnail");
+        dto.setContentUrl(storageService.generateSignedUrlForDownload(multimedia.getObjectKey()));
+        dto.setThumbnailUrl(storageService.generateSignedUrlForDownload(multimedia.getThumbnailObjectKey()));
         dto.setContentType(multimedia.getContentType());
         dto.setObjectKey(multimedia.getObjectKey());
         dto.setUploadDate(Date.from(multimedia.getUploadDate()));
@@ -40,7 +40,7 @@ public class MultimediaMapper {
         dto.setContentType(multimedia.getContentType());
         dto.setObjectKey(multimedia.getObjectKey());
         dto.setUploadDate(Date.from(multimedia.getUploadDate()));
-        dto.setSignedUrl(storageService.generateSignedUrl(multimedia));
+        dto.setSignedUrl(storageService.generateSignedUrlForUpload(multimedia));
         dto.setOriginalFileName(multimedia.getOriginalFileName());
         return dto;
     }

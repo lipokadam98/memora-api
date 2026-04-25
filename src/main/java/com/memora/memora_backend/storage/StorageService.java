@@ -9,5 +9,6 @@ public interface StorageService {
     void uploadFile(byte[] file, String key) throws IOException;
     InputStream downloadFile(String key);
     void deleteFile(String key);
-    String generateSignedUrl(Multimedia multimedia);
+    String generateSignedUrlForUpload(Multimedia multimedia);
+    String generateSignedUrlForDownload(String key);
 }

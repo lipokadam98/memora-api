@@ -12,7 +12,7 @@ public interface MultimediaService {
     List<MultimediaResponseDto> save(List<MultimediaRequestDto> multimediaRequestDto);
     MultimediaResponseDto findById(Long id);
     void delete(Long id);
-    CursorPage<MultimediaResponseDto> findAll(String cursor, int limit);
+    CursorPage<MultimediaResponseDto> findAll(Long userId, String cursor, int limit);
     Resource downloadThumbnail(Long id);
     Resource downloadContent(String objectKey);
     List<MultimediaResponseDto> createThumbnails(List<ThumbnailCreationRequestDto> thumbnailCreationRequestDtoList);

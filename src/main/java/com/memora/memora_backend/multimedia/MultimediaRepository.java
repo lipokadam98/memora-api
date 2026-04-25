@@ -12,16 +12,18 @@ import java.util.List;
 @Repository
 public interface MultimediaRepository extends JpaRepository<Multimedia, Long> {
     @Query("""
-            SELECT m FROM Multimedia m
-            WHERE (m.uploadDate > :uploadDate OR
-                  (m.uploadDate = :uploadDate AND m.id > :id))
-            ORDER BY m.uploadDate ASC, m.id ASC
-            """)
+        SELECT m FROM Multimedia m
+        WHERE m.user.id = :userId
+        AND (m.uploadDate > :uploadDate OR
+            (m.uploadDate = :uploadDate AND m.id > :id))
+        ORDER BY m.uploadDate ASC, m.id ASC
+        """)
     List<Multimedia> findNextPage(
+            @Param("userId") Long userId,
             @Param("uploadDate") Instant uploadDate,
             @Param("id") Long id,
             Pageable pageable
     );
 
-    List<Multimedia> findAllByOrderByUploadDateAscIdAsc(Pageable pageable);
+    List<Multimedia> findByUserIdOrderByUploadDateAscIdAsc(Long userId, Pageable pageable);
 }

@@ -45,7 +45,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public String generateSignedUrl(Multimedia multimedia) {
+    public String generateSignedUrlForUpload(Multimedia multimedia) {
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, multimedia.getObjectKey())
                 .setContentType(multimedia.getContentType()).build();
 
@@ -56,5 +56,18 @@ public class StorageServiceImpl implements StorageService {
                 Storage.SignUrlOption.withContentType()
         );
         return url.toString();
+    }
+
+    public String generateSignedUrlForDownload(String key) {
+        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, key).build();
+
+        // Generate a URL that expires in 60 minutes
+        // TODO Refactor in regard to the JWT TOKEN expiration
+        return storage.signUrl(
+                blobInfo,
+                60,
+                TimeUnit.MINUTES,
+                Storage.SignUrlOption.withV4Signature()
+        ).toString();
     }
 }

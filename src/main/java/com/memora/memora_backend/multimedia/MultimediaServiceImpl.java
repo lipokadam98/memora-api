@@ -98,7 +98,7 @@ public class MultimediaServiceImpl implements MultimediaService{
      * @return the cursor page of multimedia entities
      */
     @Override
-    public CursorPage<MultimediaResponseDto> findAll(String cursor, int limit) {
+    public CursorPage<MultimediaResponseDto> findAll(Long userId, String cursor, int limit) {
 
         var pageable = PageRequest.of(0, limit + 1);
 
@@ -106,11 +106,12 @@ public class MultimediaServiceImpl implements MultimediaService{
 
         // If no cursor is provided, return entities paginated
         if (cursor == null) {
-            results = multimediaRepository.findAllByOrderByUploadDateAscIdAsc(pageable);
+            results = multimediaRepository.findByUserIdOrderByUploadDateAscIdAsc(userId,pageable);
         } else {
             // Decode the cursor and find the next page of entities
             var decoded = CursorUtil.decode(cursor);
             results = multimediaRepository.findNextPage(
+                    userId,
                     decoded.getLeft(),
                     decoded.getRight(),
                     pageable
