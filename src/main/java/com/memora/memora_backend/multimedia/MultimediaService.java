@@ -16,4 +16,5 @@ public interface MultimediaService {
     Resource downloadThumbnail(Long id);
     Resource downloadContent(String objectKey);
     List<MultimediaResponseDto> createThumbnails(List<ThumbnailCreationRequestDto> thumbnailCreationRequestDtoList);
+    void deleteAll(List<Long> ids);
 }

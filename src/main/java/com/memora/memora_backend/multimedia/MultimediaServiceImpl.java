@@ -196,6 +196,42 @@ public class MultimediaServiceImpl implements MultimediaService{
                 .toList();
     }
 
+    @Transactional
+    @Override
+    public void deleteAll(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+
+        // 1. Fetch the actual entities to get their storage keys
+        List<Multimedia> multimediaList = multimediaRepository.findAllById(ids);
+
+        if (multimediaList.isEmpty()) {
+            return;
+        }
+
+        // 2. Remove files from storage
+        for (Multimedia multimedia : multimediaList) {
+            try {
+                // Delete main content
+                if (multimedia.getObjectKey() != null) {
+                    storageService.deleteFile(multimedia.getObjectKey());
+                }
+                // Delete thumbnail
+                if (multimedia.getThumbnailObjectKey() != null) {
+                    storageService.deleteFile(multimedia.getThumbnailObjectKey());
+                }
+            } catch (Exception e) {
+                // We log the error but continue to allow the DB deletion to proceed.
+                // Depending on your requirements, you might want to rethrow to trigger a rollback.
+                log.error("Failed to delete storage files for multimedia ID: {}", multimedia.getId(), e);
+            }
+        }
+
+        // 3. Remove from database
+        multimediaRepository.deleteAll(multimediaList);
+    }
+
 
     private byte[] createThumbnailByteArray(String contentType, InputStream inputStream) throws IOException {
         if (contentType == null) {

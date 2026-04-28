@@ -48,6 +48,12 @@ public class MultimediaController {
         multimediaService.delete(id);
     }
 
+    @DeleteMapping("/batch")
+    public ResponseEntity<Void> deleteBatch(@RequestBody List<Long> ids) {
+        multimediaService.deleteAll(ids);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/thumbnail")
     public ResponseEntity<Resource> getThumbnail(@PathVariable Long id) {
         var resource = multimediaService.downloadThumbnail(id);
