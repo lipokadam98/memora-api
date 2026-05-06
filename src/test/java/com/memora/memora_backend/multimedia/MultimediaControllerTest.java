@@ -3,6 +3,7 @@ package com.memora.memora_backend.multimedia;
 import com.memora.memora_backend.auth.jwt.JwtService;
 import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
 import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -40,6 +41,7 @@ public class MultimediaControllerTest {
     private JwtService jwtService;
 
     @Test
+    @DisplayName("POST /api/multimedia/ - Should fail with status code 403")
     void testCreateWithoutAuthentication() throws Exception {
         List<MultimediaRequestDto> requestList = List.of(new MultimediaRequestDto());
         List<MultimediaResponseDto> responseList = List.of(new MultimediaResponseDto());
@@ -55,7 +57,8 @@ public class MultimediaControllerTest {
 
     @Test
     @WithMockUser(username = "testuser")
-    void testCreateAuthenticated() throws Exception {
+    @DisplayName("POST /api/multimedia/ - Should create list of multimedia items")
+    void testCreate() throws Exception {
         List<MultimediaRequestDto> requestList = List.of(new MultimediaRequestDto());
         List<MultimediaResponseDto> responseList = List.of(new MultimediaResponseDto());
 
@@ -71,6 +74,7 @@ public class MultimediaControllerTest {
 
     @Test
     @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/multimedia/{id} - Should return a single multimedia object")
     void testGetById() throws Exception {
         MultimediaResponseDto responseDto = new MultimediaResponseDto();
         responseDto.setId(1L);
@@ -87,6 +91,7 @@ public class MultimediaControllerTest {
 
     @Test
     @WithMockUser
+    @DisplayName("GET /api/multimedia/{id} - Should throw an error for not found multimedia")
     void testGetById_NotFound() throws Exception {
         when(multimediaService.findById(99L)).thenThrow(new RuntimeException("Not found"));
 
