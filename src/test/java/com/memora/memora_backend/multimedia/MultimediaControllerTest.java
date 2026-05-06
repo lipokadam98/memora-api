@@ -19,8 +19,8 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,7 +56,7 @@ public class MultimediaControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser
     @DisplayName("POST /api/multimedia/ - Should create list of multimedia items")
     void testCreate() throws Exception {
         List<MultimediaRequestDto> requestList = List.of(new MultimediaRequestDto());
@@ -73,7 +73,7 @@ public class MultimediaControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser
     @DisplayName("GET /api/multimedia/{id} - Should return a single multimedia object")
     void testGetById() throws Exception {
         MultimediaResponseDto responseDto = new MultimediaResponseDto();
