@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/multimedia", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/multimedia", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class MultimediaController {
 
