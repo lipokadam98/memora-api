@@ -19,8 +19,9 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MultimediaController.class)
 @ActiveProfiles("dev")
@@ -66,5 +67,30 @@ public class MultimediaControllerTest {
                         .content(objectMapper.writeValueAsString(requestList)))
                         .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void testGetById() throws Exception {
+        MultimediaResponseDto responseDto = new MultimediaResponseDto();
+        responseDto.setId(1L);
+
+        when(multimediaService.findById(1L)).thenReturn(responseDto);
+
+        mockMvc.perform(get("/api/multimedia/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    @WithMockUser
+    void testGetById_NotFound() throws Exception {
+        when(multimediaService.findById(99L)).thenThrow(new RuntimeException("Not found"));
+
+        mockMvc.perform(get("/api/multimedia/99"))
+                .andExpect(status().is5xxServerError());
     }
 }
