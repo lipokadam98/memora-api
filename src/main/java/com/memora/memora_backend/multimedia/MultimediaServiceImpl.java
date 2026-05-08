@@ -28,8 +28,6 @@ public class MultimediaServiceImpl implements MultimediaService{
 
     private final MultimediaProcessingService multimediaProcessingService;
 
-
-
     public MultimediaServiceImpl(MultimediaRepository multimediaRepository,
                                  StorageService storageService,
                                  MultimediaMapper multimediaMapper,

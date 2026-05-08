@@ -42,7 +42,7 @@ public class MultimediaControllerTest {
 
     @Test
     @DisplayName("POST /api/multimedia/ - Should fail with status code 403")
-    void testCreateWithoutAuthentication() throws Exception {
+    void testCreate_WithoutAuthentication() throws Exception {
         List<MultimediaRequestDto> requestList = List.of(new MultimediaRequestDto());
         List<MultimediaResponseDto> responseList = List.of(new MultimediaResponseDto());
 
