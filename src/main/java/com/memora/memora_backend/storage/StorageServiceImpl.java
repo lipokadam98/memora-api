@@ -9,7 +9,6 @@ import com.memora.memora_backend.multimedia.Multimedia;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -21,6 +20,9 @@ public class StorageServiceImpl implements StorageService {
     @Value("${cloud.bucketName}")
     private String bucketName;
 
+    @Value("${security.jwt.expiration-time}")
+    private Long jwtExpiration;
+
     private final Storage storage;
 
     public StorageServiceImpl(Storage storage) {
@@ -28,7 +30,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void uploadFile(byte[] file, String key) throws IOException {
+    public void uploadFile(byte[] file, String key) {
         BlobId blobId = BlobId.of(bucketName, key);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
         storage.create(blobInfo, file);
@@ -61,12 +63,11 @@ public class StorageServiceImpl implements StorageService {
     public String generateSignedUrlForDownload(String key) {
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, key).build();
 
-        // Generate a URL that expires in 60 minutes
-        // TODO Refactor in regard to the JWT TOKEN expiration
+        // Generate a URL that expires in X minutes based on JWT expiration time
         return storage.signUrl(
                 blobInfo,
-                60,
-                TimeUnit.MINUTES,
+                jwtExpiration,
+                TimeUnit.MILLISECONDS,
                 Storage.SignUrlOption.withV4Signature()
         ).toString();
     }

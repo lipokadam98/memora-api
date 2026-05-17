@@ -5,7 +5,6 @@ import com.memora.memora_backend.multimedia.dto.MultimediaRequestDto;
 import com.memora.memora_backend.multimedia.dto.MultimediaResponseDto;
 import com.memora.memora_backend.multimedia.dto.ThumbnailCreationRequestDto;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,32 +43,14 @@ public class MultimediaController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         multimediaService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/batch")
     public ResponseEntity<Void> deleteBatch(@RequestBody List<Long> ids) {
         multimediaService.deleteAll(ids);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}/thumbnail")
-    public ResponseEntity<Resource> getThumbnail(@PathVariable Long id) {
-        var resource = multimediaService.downloadThumbnail(id);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(resource);
-    }
-
-    @GetMapping("/{id}/content")
-    public ResponseEntity<Resource> getContent(@PathVariable Long id) {
-        var multimedia = multimediaService.findById(id);
-        var resource = multimediaService.downloadContent(multimedia.getObjectKey());
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(multimedia.getContentType()))
-                .body(resource);
     }
 }

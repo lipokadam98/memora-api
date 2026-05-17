@@ -5,8 +5,6 @@ import com.memora.memora_backend.cursor.CursorUtil;
 import com.memora.memora_backend.multimedia.dto.*;
 import com.memora.memora_backend.storage.StorageService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,30 +133,6 @@ public class MultimediaServiceImpl implements MultimediaService{
         }
 
         return new CursorPage<>(multimediaResponseDtoList, nextCursor, hasNext);
-    }
-
-    /**
-     * Download the thumbnail of a multimedia
-     * @param id the id of the multimedia
-     * @return the thumbnail as a resource
-     */
-    @Override
-    public Resource downloadThumbnail(Long id) {
-        var multimedia = multimediaRepository.findById(id).orElse(null);
-        if(multimedia == null){
-            throw new RuntimeException("Multimedia not found");
-        }
-        return new InputStreamResource(storageService.downloadFile(multimedia.getThumbnailObjectKey()));
-    }
-
-    /**
-     * Download the content of a multimedia
-     * @param objectKey the object key of the multimedia
-     * @return the multimedia content as a resource
-     */
-    @Override
-    public Resource downloadContent(String objectKey) {
-        return new InputStreamResource(storageService.downloadFile(objectKey));
     }
 
     @Override
