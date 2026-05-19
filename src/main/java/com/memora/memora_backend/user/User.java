@@ -1,7 +1,7 @@
 package com.memora.memora_backend.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.memora.memora_backend.multimedia.Multimedia;
+import com.memora.memora_backend.notes.Notes;
 import com.memora.memora_backend.user.dto.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class User implements UserDetails {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(name = "password",nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "role", nullable = false)
@@ -47,13 +48,15 @@ public class User implements UserDetails {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Multimedia> multimediaList = new ArrayList<>();
 
-    //This can be removed once DTO is used
-    @JsonIgnore
-    private List<Multimedia> multimedia;
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notes> notesList = new ArrayList<>();
 
-    public User(Long id){
+    public User(Long id) {
         this.id = id;
     }
 
@@ -92,5 +95,4 @@ public class User implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return enabled;
     }
-
 }

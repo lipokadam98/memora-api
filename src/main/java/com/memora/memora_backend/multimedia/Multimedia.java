@@ -1,5 +1,6 @@
 package com.memora.memora_backend.multimedia;
 
+import com.memora.memora_backend.notes.Notes;
 import com.memora.memora_backend.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -48,6 +49,10 @@ public class Multimedia {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notes_id")
+    private Notes notes;
 
     @PrePersist
     public void prePersist() {
