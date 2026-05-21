@@ -18,7 +18,11 @@ public class NotesServiceImpl implements NotesService{
 
     @Override
     public Notes findById(Long id) {
-        return notesRepository.findById(id).orElse(null);
+        var note = notesRepository.findById(id).orElse(null);
+        if(note == null){
+            throw new RuntimeException("Note not found");
+        }
+        return note;
     }
 
     @Override
