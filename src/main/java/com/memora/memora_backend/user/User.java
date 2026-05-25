@@ -1,9 +1,12 @@
 package com.memora.memora_backend.user;
 
 import com.memora.memora_backend.multimedia.Multimedia;
-import com.memora.memora_backend.notes.Notes;
+import com.memora.memora_backend.notes.Note;
 import com.memora.memora_backend.user.dto.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,9 +29,13 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Email(message = "Please provide a valid email address")
+    @NotBlank
+    @Column(name = "email", nullable = false, unique = true, length = 254)
     private String email;
 
+    @Size(max = 255, message = "Full name cannot exceed 255 characters")
+    @NotBlank(message = "Full name is required")
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
@@ -54,7 +61,7 @@ public class User implements UserDetails {
 
     @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notes> notesList = new ArrayList<>();
+    private List<Note> noteList = new ArrayList<>();
 
     public User(Long id) {
         this.id = id;

@@ -3,6 +3,8 @@ package com.memora.memora_backend.notes;
 import com.memora.memora_backend.multimedia.Multimedia;
 import com.memora.memora_backend.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,22 +18,26 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table(name = "notes")
-public class Notes {
+public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Size(max = 150, message = "Title cannot exceed 150 characters")
+    @NotBlank(message = "Title cannot be empty")
+    @Column(name = "title", nullable = false, length = 150)
     private String title;
 
-    @Column(name = "content", nullable = false)
+    @Size(max = 20000, message = "Note content cannot exceed 20,000 characters")
+    @NotBlank(message = "Note content cannot be empty")
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "notes", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "note", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Multimedia> multimediaList = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -42,12 +48,12 @@ public class Notes {
 
     public void addMultimedia(Multimedia multimedia) {
         this.multimediaList.add(multimedia);
-        multimedia.setNotes(this);
+        multimedia.setNote(this);
     }
 
     public void removeMultimedia(Multimedia multimedia) {
         this.multimediaList.remove(multimedia);
-        multimedia.setNotes(null);
+        multimedia.setNote(null);
     }
 
     @PrePersist

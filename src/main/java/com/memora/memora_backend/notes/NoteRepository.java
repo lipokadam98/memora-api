@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface NotesRepository extends JpaRepository<Notes, Long> {
-    List<Notes> findAllByUserId(Long userId);
+public interface NoteRepository extends JpaRepository<Note, Long> {
+    List<Note> findAllByUserId(Long userId);
 }
