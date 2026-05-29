@@ -1,6 +1,6 @@
 package com.memora.memora_backend.multimedia;
 
-import com.memora.memora_backend.notes.Note;
+import com.memora.memora_backend.note.Note;
 import com.memora.memora_backend.user.User;
 import jakarta.persistence.*;
 import lombok.*;

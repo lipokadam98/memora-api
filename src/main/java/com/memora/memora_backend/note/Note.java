@@ -1,4 +1,4 @@
-package com.memora.memora_backend.notes;
+package com.memora.memora_backend.note;
 
 import com.memora.memora_backend.multimedia.Multimedia;
 import com.memora.memora_backend.user.User;

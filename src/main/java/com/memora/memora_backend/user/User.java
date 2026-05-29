@@ -1,8 +1,9 @@
 package com.memora.memora_backend.user;
 
 import com.memora.memora_backend.multimedia.Multimedia;
-import com.memora.memora_backend.notes.Note;
+import com.memora.memora_backend.note.Note;
 import com.memora.memora_backend.user.dto.Role;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -79,11 +80,13 @@ public class User implements UserDetails {
     }
 
     @Override
+    @Nonnull
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
     @Override
+    @Nonnull
     public String getUsername() {
         return email;
     }

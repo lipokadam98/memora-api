@@ -1,4 +1,4 @@
-package com.memora.memora_backend.notes.dto;
+package com.memora.memora_backend.note.dto;
 
 import lombok.Builder;
 import lombok.Data;
