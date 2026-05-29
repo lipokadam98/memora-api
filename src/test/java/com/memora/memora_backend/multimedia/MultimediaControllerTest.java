@@ -43,12 +43,12 @@ public class MultimediaControllerTest {
     @MockitoBean
     private JwtService jwtService;
 
+    private final MultimediaResponseDto responseDto = MultimediaResponseDto.builder().id(1L).build();
+
     @Test
     @WithMockUser
     @DisplayName("GET /api/multimedia - Should return paginated multimedia")
     void testGetAll() throws Exception {
-        MultimediaResponseDto responseDto = new MultimediaResponseDto();
-        responseDto.setId(1L);
         List<MultimediaResponseDto> multimediaResponseDtoList = List.of(responseDto, responseDto);
         CursorPage<MultimediaResponseDto> response = new CursorPage<>(multimediaResponseDtoList, "cursor", true);
         when(multimediaService.findAll(1L,"cursor",2)).thenReturn(response);
@@ -67,9 +67,6 @@ public class MultimediaControllerTest {
     @WithMockUser
     @DisplayName("GET /api/multimedia/{id} - Should return a single multimedia object")
     void testGetById() throws Exception {
-        MultimediaResponseDto responseDto = new MultimediaResponseDto();
-        responseDto.setId(1L);
-
         when(multimediaService.findById(1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/multimedia/1")
@@ -94,7 +91,7 @@ public class MultimediaControllerTest {
     @DisplayName("POST /api/multimedia/ - Should fail with status code 403")
     void testCreate_WithoutAuthentication() throws Exception {
         List<MultimediaRequestDto> requestList = List.of(new MultimediaRequestDto());
-        List<MultimediaResponseDto> responseList = List.of(new MultimediaResponseDto());
+        List<MultimediaResponseDto> responseList = List.of(responseDto);
 
         when(multimediaService.save(anyList())).thenReturn(responseList);
 
@@ -110,7 +107,7 @@ public class MultimediaControllerTest {
     @DisplayName("POST /api/multimedia/ - Should create list of multimedia items")
     void testCreate() throws Exception {
         List<MultimediaRequestDto> requestList = List.of(new MultimediaRequestDto());
-        List<MultimediaResponseDto> responseList = List.of(new MultimediaResponseDto());
+        List<MultimediaResponseDto> responseList = List.of(responseDto);
 
         when(multimediaService.save(anyList())).thenReturn(responseList);
 
@@ -127,7 +124,7 @@ public class MultimediaControllerTest {
     @DisplayName("POST /api/multimedia/create-thumbnails - Should create list of thumbnails")
     void testCreateThumbnails() throws Exception {
         List<ThumbnailCreationRequestDto> requestList = List.of(new ThumbnailCreationRequestDto());
-        List<MultimediaResponseDto> responseList = List.of(new MultimediaResponseDto());
+        List<MultimediaResponseDto> responseList = List.of(responseDto);
 
         when(multimediaService.createThumbnails(requestList)).thenReturn(responseList);
 

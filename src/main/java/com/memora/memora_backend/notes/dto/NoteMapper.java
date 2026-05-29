@@ -8,18 +8,18 @@ import org.springframework.stereotype.Component;
 public class NoteMapper {
 
     public NoteResponseDto toNoteResponseDto(Note note){
-        NoteResponseDto noteResponseDto = new NoteResponseDto();
-        noteResponseDto.setId(note.getId());
-        noteResponseDto.setTitle(note.getTitle());
-        noteResponseDto.setContent(note.getContent());
-        return noteResponseDto;
+        return NoteResponseDto.builder()
+                .id(note.getId())
+                .title(note.getTitle())
+                .content(note.getContent())
+                .build();
     }
 
-    public Note toNote(NoteRequestDto noteRequestDto){
-        Note note = new Note();
-        note.setTitle(noteRequestDto.getTitle());
-        note.setContent(noteRequestDto.getContent());
-        note.setUser(new User(noteRequestDto.getUser().getId()));
-        return note;
+    public Note toNote(NoteRequestDto noteRequestDto,User user){
+        return Note.builder()
+                .title(noteRequestDto.getTitle())
+                .content(noteRequestDto.getContent())
+                .user(user)
+                .build();
     }
 }

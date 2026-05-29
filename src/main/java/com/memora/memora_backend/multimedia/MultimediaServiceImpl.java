@@ -4,6 +4,8 @@ import com.memora.memora_backend.cursor.CursorPage;
 import com.memora.memora_backend.cursor.CursorUtil;
 import com.memora.memora_backend.multimedia.dto.*;
 import com.memora.memora_backend.storage.StorageService;
+import com.memora.memora_backend.user.UserRepository;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class MultimediaServiceImpl implements MultimediaService{
 
     private final MultimediaRepository multimediaRepository;
@@ -26,15 +29,7 @@ public class MultimediaServiceImpl implements MultimediaService{
 
     private final MultimediaProcessingService multimediaProcessingService;
 
-    public MultimediaServiceImpl(MultimediaRepository multimediaRepository,
-                                 StorageService storageService,
-                                 MultimediaMapper multimediaMapper,
-                                 MultimediaProcessingService multimediaProcessingService) {
-        this.multimediaRepository = multimediaRepository;
-        this.storageService = storageService;
-        this.multimediaMapper = multimediaMapper;
-        this.multimediaProcessingService = multimediaProcessingService;
-    }
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
@@ -43,9 +38,15 @@ public class MultimediaServiceImpl implements MultimediaService{
             throw new IllegalArgumentException("At least one file is required");
         }
 
+        var user = userRepository.findById(multimediaRequestDtoList.getFirst().getUser().getId()).orElse(null);
+
+        if(user == null){
+            throw new RuntimeException("User not found");
+        }
+
         // 1. Map DTOs to Entities
         List<Multimedia> entities = multimediaRequestDtoList.stream()
-                .map(multimediaMapper::toMultimediaFromDto)
+                .map(request -> multimediaMapper.toMultimediaFromDto(request,user))
                 .toList();
 
         // 2. Save all entities

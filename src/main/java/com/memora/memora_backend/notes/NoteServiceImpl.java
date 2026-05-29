@@ -3,6 +3,7 @@ package com.memora.memora_backend.notes;
 import com.memora.memora_backend.notes.dto.NoteMapper;
 import com.memora.memora_backend.notes.dto.NoteRequestDto;
 import com.memora.memora_backend.notes.dto.NoteResponseDto;
+import com.memora.memora_backend.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +15,19 @@ public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
 
+    private final UserRepository userRepository;
+
     private final NoteMapper noteMapper;
 
     @Override
     public NoteResponseDto save(NoteRequestDto noteRequestDto) {
-        Note note = noteMapper.toNote(noteRequestDto);
+        var user = userRepository.findById(noteRequestDto.getUser().getId()).orElse(null);
+
+        if(user == null){
+            throw new RuntimeException("User not found");
+        }
+
+        Note note = noteMapper.toNote(noteRequestDto,user);
         return noteMapper.toNoteResponseDto(noteRepository.save(note));
     }
 

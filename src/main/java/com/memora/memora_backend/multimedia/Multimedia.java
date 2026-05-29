@@ -3,9 +3,7 @@ package com.memora.memora_backend.multimedia;
 import com.memora.memora_backend.notes.Note;
 import com.memora.memora_backend.user.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -13,6 +11,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "multimedia")
 public class Multimedia {
     @Id
