@@ -10,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig {
 
-    // Ezt a változót az application.properties-ből vagy környezeti változóból töltjük
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
 
