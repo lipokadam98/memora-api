@@ -28,7 +28,7 @@ public class Note {
     @Column(name = "title", nullable = false, length = 150)
     private String title;
 
-    @Size(max = 20000, message = "Note content cannot exceed 20,000 characters")
+    @Size(max = 10000, message = "Content cannot exceed 10,000 characters")
     @NotBlank(message = "Note content cannot be empty")
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
