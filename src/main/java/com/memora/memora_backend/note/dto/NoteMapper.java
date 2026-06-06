@@ -4,6 +4,8 @@ import com.memora.memora_backend.note.Note;
 import com.memora.memora_backend.user.User;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class NoteMapper {
 
@@ -12,6 +14,8 @@ public class NoteMapper {
                 .id(note.getId())
                 .title(note.getTitle())
                 .content(note.getContent())
+                .createdAt(Date.from(note.getCreatedAt()))
+                .updatedAt(Date.from(note.getUpdatedAt()))
                 .build();
     }
 
