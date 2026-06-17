@@ -13,6 +13,10 @@ public class WebConfig {
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
 
+    /**
+     * Configure CORS for the application to allow requests from the specified origins.
+     * @return the WebMvcConfigurer bean for configuring CORS.
+     */
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {

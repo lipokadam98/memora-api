@@ -29,6 +29,11 @@ public class StorageServiceImpl implements StorageService {
         this.storage = storage;
     }
 
+    /**
+     * Upload a file to the storage service
+     * @param file the file to upload
+     * @param key the key to use for the file
+     */
     @Override
     public void uploadFile(byte[] file, String key) {
         BlobId blobId = BlobId.of(bucketName, key);
@@ -36,16 +41,30 @@ public class StorageServiceImpl implements StorageService {
         storage.create(blobInfo, file);
     }
 
+    /**
+     * Download a file from the storage service
+     * @param key the key of the file to download
+     * @return the input stream of the file
+     */
     public InputStream downloadFile(String key) {
         ReadChannel reader = storage.reader(bucketName, key);
         return Channels.newInputStream(reader);
     }
 
+    /**
+     * Delete a file from the storage service
+     * @param key the key of the file to delete
+     */
     @Override
     public void deleteFile(String key) {
         storage.delete(bucketName, key);
     }
 
+    /**
+     * Generate a signed URL for uploading a file
+     * @param multimedia the multimedia item to upload
+     * @return the signed URL for uploading the file
+     */
     @Override
     public String generateSignedUrlForUpload(Multimedia multimedia) {
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, multimedia.getObjectKey())
@@ -53,13 +72,18 @@ public class StorageServiceImpl implements StorageService {
 
         URL url = storage.signUrl(
                 blobInfo,
-                15, TimeUnit.MINUTES,
+                30, TimeUnit.MINUTES,
                 Storage.SignUrlOption.httpMethod(HttpMethod.PUT),
                 Storage.SignUrlOption.withContentType()
         );
         return url.toString();
     }
 
+    /**
+     * Generate a signed URL for downloading a file
+     * @param key the key of the file to download
+     * @return the signed URL for downloading the file
+     */
     public String generateSignedUrlForDownload(String key) {
         BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, key).build();
 

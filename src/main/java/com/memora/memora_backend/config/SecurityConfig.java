@@ -21,6 +21,11 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
 
+    /**
+     * Configure the security filter chain
+     * @param httpSecurity the http security object
+     * @return the security filter chain
+     */
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
         httpSecurity

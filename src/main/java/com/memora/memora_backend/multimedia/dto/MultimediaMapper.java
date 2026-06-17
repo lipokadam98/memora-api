@@ -21,6 +21,11 @@ public class MultimediaMapper {
         this.storageService = storageService;
     }
 
+    /**
+     * Maps a Multimedia object to a MultimediaResponseDto object with a signed URL for downloading
+     * @param multimedia the Multimedia object to map
+     * @return the MultimediaResponseDto object with a signed URL for downloading
+     */
     public MultimediaResponseDto toMultimediaResponseDto(Multimedia multimedia) {
         return MultimediaResponseDto.builder()
                 .id(multimedia.getId())
@@ -32,6 +37,11 @@ public class MultimediaMapper {
                 .build();
     }
 
+    /**
+     * Maps a Multimedia object to a MultimediaResponseDto object with a signed URL for uploading
+     * @param multimedia the Multimedia object to map
+     * @return the MultimediaResponseDto object with a signed URL for uploading
+     */
     public MultimediaResponseDto toMultimediaResponseDtoWithSignedUrl(Multimedia multimedia) {
         return MultimediaResponseDto.builder()
                 .id(multimedia.getId())
@@ -43,6 +53,12 @@ public class MultimediaMapper {
                 .build();
     }
 
+    /**
+     * Maps a MultimediaRequestDto object to a Multimedia object with a random UUID for the object key
+     * @param dto the MultimediaRequestDto object to map
+     * @param user the user who uploaded the multimedia
+     * @return the Multimedia object with a random UUID for the object key
+     */
     public Multimedia toMultimediaFromDto(MultimediaRequestDto dto,User user) {
         String objectKey = UUID.randomUUID() + "-" + dto.getOriginalFileName();
         return Multimedia.builder()

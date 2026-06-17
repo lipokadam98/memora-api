@@ -9,6 +9,11 @@ import java.util.Date;
 @Component
 public class NoteMapper {
 
+    /**
+     * Maps a Note to a NoteResponseDto object.
+     * @param note the note to be mapped
+     * @return noteResponseDto object
+     */
     public NoteResponseDto toNoteResponseDto(Note note){
         return NoteResponseDto.builder()
                 .id(note.getId())
@@ -19,7 +24,13 @@ public class NoteMapper {
                 .build();
     }
 
-    public Note toNote(NoteRequestDto noteRequestDto,User user){
+    /**
+     * Maps a NoteRequestDto object to a Note object
+     * @param noteRequestDto the NoteRequestDto object to be mapped
+     * @param user the user who created the note
+     * @return the Note object
+     */
+    public Note toNote(NoteRequestDto noteRequestDto, User user){
         return Note.builder()
                 .title(noteRequestDto.getTitle())
                 .content(noteRequestDto.getContent())
