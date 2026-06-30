@@ -43,7 +43,7 @@ public class MultimediaServiceImpl implements MultimediaService {
         }
 
         // Defensive boundary check isolating User identity assignment context safely
-        Long userId = multimediaRequestDtoList.getFirst().getUser().getId();
+        Long userId = multimediaRequestDtoList.getFirst().getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User registration state not resolved for ID: " + userId));
 

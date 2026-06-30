@@ -3,7 +3,7 @@ package com.memora.memora_backend.auth;
 import com.memora.memora_backend.auth.dto.LoginResponse;
 import com.memora.memora_backend.auth.dto.LoginUserDto;
 import com.memora.memora_backend.auth.dto.RegisterUserDto;
-import com.memora.memora_backend.user.User;
+import com.memora.memora_backend.auth.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,8 +30,8 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "400", description = "Supplied credentials fail structural schema validation rules")
     })
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
-        User registeredUser = authenticationService.signup(registerUserDto);
+    public ResponseEntity<UserDto> register(@RequestBody RegisterUserDto registerUserDto) {
+        UserDto registeredUser = authenticationService.signup(registerUserDto);
         return ResponseEntity.ok(registeredUser);
     }
 

@@ -6,8 +6,8 @@ import com.memora.memora_backend.auth.dto.RegisterUserDto;
 import com.memora.memora_backend.auth.jwt.JwtService;
 import com.memora.memora_backend.user.User;
 import com.memora.memora_backend.user.UserRepository;
-import com.memora.memora_backend.user.dto.Role;
-import com.memora.memora_backend.user.dto.UserDto;
+import com.memora.memora_backend.user.Role;
+import com.memora.memora_backend.auth.dto.UserDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,17 +35,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Transactional
     @Override
-    public User signup(RegisterUserDto input) {
+    public UserDto signup(RegisterUserDto input) {
         User user = User.builder()
                 .fullName(input.getFullName())
                 .email(input.getEmail())
-                // TODO: abstract role delegation mechanics out of baseline defaults
-                .role(Role.ADMIN)
+                .role(Role.USER)
                 .enabled(true)
                 .password(passwordEncoder.encode(input.getPassword()))
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return UserDto.builder()
+                .userName(savedUser.getUsername())
+                .email(savedUser.getEmail())
+                .id(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .build();
     }
 
     /**

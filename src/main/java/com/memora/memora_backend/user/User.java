@@ -2,7 +2,6 @@ package com.memora.memora_backend.user;
 
 import com.memora.memora_backend.multimedia.Multimedia;
 import com.memora.memora_backend.note.Note;
-import com.memora.memora_backend.user.dto.Role;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

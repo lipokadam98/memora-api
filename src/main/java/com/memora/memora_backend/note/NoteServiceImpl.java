@@ -28,7 +28,7 @@ public class NoteServiceImpl implements NoteService {
     @Override
     @Transactional
     public NoteResponseDto save(NoteRequestDto noteRequestDto) {
-        Long userId = noteRequestDto.getUser().getId();
+        Long userId = noteRequestDto.getUserId();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
