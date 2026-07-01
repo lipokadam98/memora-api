@@ -1,5 +1,6 @@
 package com.memora.memora_backend.note;
 
+import com.memora.memora_backend.cursor.CursorPage;
 import com.memora.memora_backend.note.dto.NoteRequestDto;
 import com.memora.memora_backend.note.dto.NoteResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(path = "/api/notes", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
@@ -21,18 +20,19 @@ public class NoteController {
     private final NoteService noteService;
 
     @Operation(
-            summary = "Get all notes for a user",
-            description = "Fetches a list of all notes associated with the provided user ID."
+            summary = "Get all notes paginated",
+            description = "Fetches a page of user note records using an ascending chronological cursor-based pagination strategy."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of notes")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated metadata records")
     })
     @GetMapping
-    public List<NoteResponseDto> getAll(
-            @Parameter(description = "ID of the user whose notes are being fetched", required = true)
-            @RequestParam Long userId
+    public CursorPage<NoteResponseDto> getAll(
+            @Parameter(description = "ID of the user to filter notes for", required = true) @RequestParam Long userId,
+            @Parameter(description = "Base64 encoded cursor opaque string tracking page boundaries") @RequestParam(required = false) String cursor,
+            @Parameter(description = "Maximum size of records to yield per page invocation") @RequestParam(defaultValue = "25") int limit
     ) {
-        return noteService.findAll(userId);
+        return noteService.findAll(userId, cursor, limit);
     }
 
     @Operation(

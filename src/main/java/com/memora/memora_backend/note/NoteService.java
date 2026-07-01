@@ -1,5 +1,6 @@
 package com.memora.memora_backend.note;
 
+import com.memora.memora_backend.cursor.CursorPage;
 import com.memora.memora_backend.note.dto.NoteRequestDto;
 import com.memora.memora_backend.note.dto.NoteResponseDto;
 
@@ -10,6 +11,6 @@ public interface NoteService {
     NoteResponseDto findById(Long id);
     void delete(Long id);
     void deleteAll(List<Long> ids);
-    List<NoteResponseDto> findAll(Long userId);
+    CursorPage<NoteResponseDto> findAll(Long userId, String cursor, int limit);
     NoteResponseDto update(NoteRequestDto noteRequestDto);
 }

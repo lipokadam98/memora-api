@@ -1,12 +1,15 @@
 package com.memora.memora_backend.note;
 
+import com.memora.memora_backend.cursor.CursorPage;
+import com.memora.memora_backend.cursor.CursorUtil;
 import com.memora.memora_backend.note.dto.NoteMapper;
 import com.memora.memora_backend.note.dto.NoteRequestDto;
 import com.memora.memora_backend.note.dto.NoteResponseDto;
-import com.memora.memora_backend.user.UserRepository;
 import com.memora.memora_backend.user.User;
+import com.memora.memora_backend.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,15 +54,45 @@ public class NoteServiceImpl implements NoteService {
     }
 
     /**
-     * Retrieves all notes owned by a specific user.
-     * Returns an empty list if the user has no notes.
+     * Retrieves a list of notes associated with a user. Supports pagination with a cursor.
+     * @param userId the ID of the user to retrieve notes for
+     * @param cursor the cursor string to use for pagination
+     * @param limit the maximum number of notes to return per page
+     * @return a CursorPage containing the list of notes and pagination information
      */
     @Override
-    public List<NoteResponseDto> findAll(Long userId) {
-        return noteRepository.findAllByUserId(userId)
-                .stream()
+    public CursorPage<NoteResponseDto> findAll(Long userId, String cursor, int limit) {
+        var pageable = PageRequest.of(0, limit + 1);
+        List<Note> results;
+
+        if (cursor == null) {
+            results = noteRepository.findByUserIdOrderByUpdatedAtAscIdAsc(userId, pageable);
+        } else {
+            var decoded = CursorUtil.decode(cursor);
+            results = noteRepository.findNextPage(
+                    userId,
+                    decoded.getLeft(),
+                    decoded.getRight(),
+                    pageable
+            );
+        }
+
+        boolean hasNext = results.size() > limit;
+        if (hasNext) {
+            results = results.subList(0, limit);
+        }
+
+        var noteResponseDtoList = results.stream()
                 .map(noteMapper::toNoteResponseDto)
                 .toList();
+
+        String nextCursor = null;
+        if (!results.isEmpty()) {
+            var last = results.getLast();
+            nextCursor = CursorUtil.encode(last.getUpdatedAt(), last.getId());
+        }
+
+        return new CursorPage<>(noteResponseDtoList, nextCursor, hasNext);
     }
 
     /**
