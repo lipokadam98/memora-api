@@ -17,8 +17,8 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     @Query("""
         SELECT n FROM Note n
         WHERE n.user.id = :userId
-        AND (n.updatedAt > :uploadDate OR
-            (n.updatedAt = :uploadDate AND n.id > :id))
+        AND (n.updatedAt > :updatedAt OR
+            (n.updatedAt = :updatedAt AND n.id > :id))
         ORDER BY n.updatedAt ASC, n.id ASC
         """)
     List<Note> findNextPage(
