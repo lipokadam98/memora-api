@@ -96,7 +96,7 @@ public class MultimediaServiceImpl implements MultimediaService {
         List<Multimedia> results;
 
         if (cursor == null) {
-            results = multimediaRepository.findByUserIdOrderByUploadDateAscIdAsc(userId, pageable);
+            results = multimediaRepository.findByUserIdOrderByUploadDateDescIdDesc(userId, pageable);
         } else {
             var decoded = CursorUtil.decode(cursor);
             results = multimediaRepository.findNextPage(

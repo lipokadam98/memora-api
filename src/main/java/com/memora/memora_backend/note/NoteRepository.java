@@ -12,14 +12,14 @@ import java.util.List;
 
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
-    List<Note> findByUserIdOrderByUpdatedAtAscIdAsc(Long userId, PageRequest pageable);
+    List<Note> findByUserIdOrderByUpdatedAtDescIdDesc(Long userId, PageRequest pageable);
 
     @Query("""
         SELECT n FROM Note n
         WHERE n.user.id = :userId
-        AND (n.updatedAt > :updatedAt OR
-            (n.updatedAt = :updatedAt AND n.id > :id))
-        ORDER BY n.updatedAt ASC, n.id ASC
+        AND (n.updatedAt < :updatedAt OR
+            (n.updatedAt = :updatedAt AND n.id < :id))
+        ORDER BY n.updatedAt desc, n.id desc
         """)
     List<Note> findNextPage(
             @Param("userId") Long userId,

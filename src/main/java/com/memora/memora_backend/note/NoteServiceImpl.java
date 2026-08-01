@@ -66,7 +66,7 @@ public class NoteServiceImpl implements NoteService {
         List<Note> results;
 
         if (cursor == null) {
-            results = noteRepository.findByUserIdOrderByUpdatedAtAscIdAsc(userId, pageable);
+            results = noteRepository.findByUserIdOrderByUpdatedAtDescIdDesc(userId, pageable);
         } else {
             var decoded = CursorUtil.decode(cursor);
             results = noteRepository.findNextPage(

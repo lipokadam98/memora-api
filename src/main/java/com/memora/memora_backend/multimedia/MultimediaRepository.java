@@ -14,9 +14,9 @@ public interface MultimediaRepository extends JpaRepository<Multimedia, Long> {
     @Query("""
         SELECT m FROM Multimedia m
         WHERE m.user.id = :userId
-        AND (m.uploadDate > :uploadDate OR
-            (m.uploadDate = :uploadDate AND m.id > :id))
-        ORDER BY m.uploadDate ASC, m.id ASC
+        AND (m.uploadDate < :uploadDate OR
+            (m.uploadDate = :uploadDate AND m.id < :id))
+        ORDER BY m.uploadDate desc, m.id desc
         """)
     List<Multimedia> findNextPage(
             @Param("userId") Long userId,
@@ -25,5 +25,5 @@ public interface MultimediaRepository extends JpaRepository<Multimedia, Long> {
             Pageable pageable
     );
 
-    List<Multimedia> findByUserIdOrderByUploadDateAscIdAsc(Long userId, Pageable pageable);
+    List<Multimedia> findByUserIdOrderByUploadDateDescIdDesc(Long userId, Pageable pageable);
 }
