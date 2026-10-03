@@ -9,6 +9,7 @@ import com.memora.memora_backend.user.User;
 import com.memora.memora_backend.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
@@ -37,6 +39,8 @@ public class NoteServiceImpl implements NoteService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
 
         Note note = noteMapper.toNote(noteRequestDto, user);
+
+        log.info("Saving note for user with ID: {}", userId);
         Note savedNote = noteRepository.save(note);
 
         return noteMapper.toNoteResponseDto(savedNote);
@@ -48,6 +52,7 @@ public class NoteServiceImpl implements NoteService {
      */
     @Override
     public NoteResponseDto findById(Long id) {
+        log.info("Finding note with ID: {}", id);
         return noteRepository.findById(id)
                 .map(noteMapper::toNoteResponseDto)
                 .orElseThrow(() -> new EntityNotFoundException("Note not found with ID: " + id));
@@ -102,6 +107,7 @@ public class NoteServiceImpl implements NoteService {
     @Override
     @Transactional
     public void delete(Long id) {
+        log.info("Deleting note with ID: {}", id);
         // Using existsById prevents an unnecessary entity load before deletion
         if (noteRepository.existsById(id)) {
             noteRepository.deleteById(id);
@@ -111,6 +117,7 @@ public class NoteServiceImpl implements NoteService {
     @Override
     @Transactional
     public void deleteAll(List<Long> ids) {
+        log.info("Deleting multiple notes with IDs: {}", ids);
         noteRepository.deleteAllById(ids);
     }
 

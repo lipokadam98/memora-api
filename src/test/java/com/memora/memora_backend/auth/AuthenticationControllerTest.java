@@ -1,10 +1,8 @@
 package com.memora.memora_backend.auth;
 
-import com.memora.memora_backend.auth.dto.LoginResponse;
-import com.memora.memora_backend.auth.dto.LoginUserDto;
-import com.memora.memora_backend.auth.dto.RegisterUserDto;
-import com.memora.memora_backend.auth.dto.UserDto;
+import com.memora.memora_backend.auth.dto.*;
 import com.memora.memora_backend.auth.jwt.JwtService;
+import com.memora.memora_backend.auth.refreshtoken.RefreshTokenService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,6 +32,9 @@ public class AuthenticationControllerTest {
     @MockitoBean
     private AuthenticationService authenticationService;
 
+    @MockitoBean
+    private RefreshTokenService refreshTokenService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -41,6 +43,7 @@ public class AuthenticationControllerTest {
 
     private final UserDto userDto = UserDto.builder().id(1L).email("test@example.com").build();
     private final LoginResponse loginResponse = LoginResponse.builder().token("mocked-jwt-token").build();
+    private final RefreshTokenResponse refreshTokenResponse = RefreshTokenResponse.builder().token("mocked-refresh-token").build();
 
     @Test
     @WithMockUser
@@ -94,5 +97,22 @@ public class AuthenticationControllerTest {
                         .content(objectMapper.writeValueAsString(loginUserDto)))
                 .andDo(print())
                 .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("POST /api/auth/refresh-token - Should refresh token")
+    void testRefreshToken_Authorized() throws Exception {
+
+        when(authenticationService.refreshToken(anyString())).thenReturn(refreshTokenResponse);
+
+        mockMvc.perform(post("/api/auth/refresh-token")
+                        .param("refreshToken", "mocked-refresh-token")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.token").value("mocked-refresh-token"));
     }
 }

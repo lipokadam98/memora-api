@@ -5,6 +5,9 @@ import com.memora.memora_backend.auth.dto.LoginUserDto;
 import com.memora.memora_backend.auth.dto.RegisterUserDto;
 import com.memora.memora_backend.auth.dto.UserDto;
 import com.memora.memora_backend.auth.jwt.JwtService;
+import com.memora.memora_backend.auth.refreshtoken.RefreshToken;
+import com.memora.memora_backend.auth.refreshtoken.RefreshTokenRepository;
+import com.memora.memora_backend.auth.refreshtoken.RefreshTokenServiceImpl;
 import com.memora.memora_backend.user.Role;
 import com.memora.memora_backend.user.User;
 import com.memora.memora_backend.user.UserRepository;
@@ -21,6 +24,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
 
@@ -35,6 +40,9 @@ public class AuthenticationServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -46,9 +54,13 @@ public class AuthenticationServiceImplTest {
     @InjectMocks
     private AuthenticationServiceImpl authenticationService;
 
+    @InjectMocks
+    private RefreshTokenServiceImpl refreshTokenServiceImpl;
+
     private User mockUser;
     private RegisterUserDto registerUserDto;
     private LoginUserDto loginUserDto;
+    private RefreshToken mockRefreshToken;
 
     @BeforeEach
     void setUp() {
@@ -69,6 +81,13 @@ public class AuthenticationServiceImplTest {
                 .enabled(true)
                 .password("encodedPassword")
                 .build();
+
+        mockRefreshToken = RefreshToken.builder()
+                .token("mock-refresh-token")
+                .user(mockUser)
+                .expirationDate(Instant.now().plus(1, ChronoUnit.HOURS))
+                .build();
+
     }
 
     @Test
@@ -98,6 +117,8 @@ public class AuthenticationServiceImplTest {
         when(userRepository.findByEmail(loginUserDto.getEmail())).thenReturn(Optional.of(mockUser));
         when(jwtService.generateToken(mockUser)).thenReturn(token);
         when(jwtService.extractExpiration(token)).thenReturn(expirationDate);
+        when(refreshTokenRepository.findByToken("mocked-refresh-token")).thenReturn(Optional.of(mockRefreshToken));
+        when(refreshTokenServiceImpl.generateRefreshToken(mockUser)).thenReturn("mocked-refresh-token");
 
         LoginResponse response = authenticationService.authenticate(loginUserDto);
 

@@ -1,19 +1,13 @@
 package com.memora.memora_backend.auth;
 
-import com.memora.memora_backend.auth.dto.LoginResponse;
-import com.memora.memora_backend.auth.dto.LoginUserDto;
-import com.memora.memora_backend.auth.dto.RegisterUserDto;
-import com.memora.memora_backend.auth.dto.UserDto;
+import com.memora.memora_backend.auth.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,5 +39,16 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
         return ResponseEntity.ok(authenticationService.authenticate(loginUserDto));
+    }
+
+    @Operation(
+            summary = "Refresh token for user",
+            description = "Refreshes a user's access token using a valid refresh token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token refresh was successful"),
+    })
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestParam String refreshToken) {
+        return ResponseEntity.ok(authenticationService.refreshToken(refreshToken));
     }
 }

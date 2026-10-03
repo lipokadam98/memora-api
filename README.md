@@ -38,4 +38,3 @@ gcloud run deploy memora-backend `
     --set-env-vars "SPRING_CLOUD_GCP_SQL_INSTANCE_CONNECTION_NAME=${PROJECT_ID}:${REGION}:memora-db,SPRING_CLOUD_GCP_SQL_DATABASE_NAME=memora,DB_URL=jdbc:postgresql://localhost:5432/memora,DB_USER=postgres,DB_PASS=DatabasePW,BUCKET_NAME=bucket-name,JWT_SECRET=longsecretkey" `
 --allow-unauthenticated `
 --region=$REGION
-

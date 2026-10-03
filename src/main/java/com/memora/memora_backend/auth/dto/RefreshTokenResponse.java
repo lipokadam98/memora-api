@@ -7,9 +7,8 @@ import java.util.Date;
 
 @Data
 @Builder
-public class LoginResponse {
+public class RefreshTokenResponse {
     private String token;
     private String refreshToken;
-    private UserDto user;
     private Date expiresAt;
 }
