@@ -8,8 +8,9 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "multimedia")

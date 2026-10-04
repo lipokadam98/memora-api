@@ -102,7 +102,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     public RefreshTokenResponse refreshToken(String refreshToken) {
         var tokenDetails = refreshTokenService.getRefreshTokenDetails(refreshToken);
-        var user = userRepository.findById(tokenDetails.getId()).orElse(null);
+        var user = userRepository.findById(tokenDetails.getUser().getId()).orElse(null);
 
         if(user == null){
             throw new EntityNotFoundException("User not found during token refresh");
