@@ -112,7 +112,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return RefreshTokenResponse.builder()
                 .token(jwtToken)
-                .refreshToken(refreshTokenService.generateRefreshToken(user))
+                .refreshToken(refreshTokenService.generateRefreshToken(user,refreshToken))
                 .expiresAt(jwtService.extractExpiration(jwtToken))
                 .build();
     }
