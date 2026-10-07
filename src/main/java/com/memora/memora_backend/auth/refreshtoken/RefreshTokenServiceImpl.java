@@ -1,8 +1,9 @@
 package com.memora.memora_backend.auth.refreshtoken;
 
 import com.memora.memora_backend.user.User;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,14 +13,18 @@ import java.util.UUID;
 
 
 @Slf4j
-@AllArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
-    private static final Duration REFRESH_TOKEN_VALIDITY = Duration.ofDays(7);
+    @Value("${refresh.token.expiration-days}")
+    private Long refreshTokenExpiration;
 
     private final RefreshTokenRepository refreshTokenRepository;
+
+    public RefreshTokenServiceImpl(RefreshTokenRepository refreshTokenRepository){
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
 
     /**
      * During login, we generate a refresh token for the user that we persist in the database
@@ -35,7 +40,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         var refreshToken = RefreshToken.builder()
                 .token(token)
                 .user(user)
-                .expirationDate(Instant.now().plus(REFRESH_TOKEN_VALIDITY))
+                .expirationDate(Instant.now().plus(Duration.ofDays(refreshTokenExpiration)))
                 .build();
 
         refreshTokenRepository.save(refreshToken);
@@ -49,7 +54,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         var newRefreshToken = RefreshToken.builder()
                 .token(token)
                 .user(user)
-                .expirationDate(Instant.now().plus(REFRESH_TOKEN_VALIDITY))
+                .expirationDate(Instant.now().plus(Duration.ofDays(refreshTokenExpiration)))
                 .build();
 
         var foundRefreshToken = refreshTokenRepository.findByToken(refreshToken);
@@ -73,5 +78,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         }
 
         return token;
+    }
+
+    @Override
+    public String createRefreshTokenCookie(String refreshToken){
+        var responseCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/api/auth/reauthenticate")
+                .maxAge(Duration.ofDays(refreshTokenExpiration))
+                .sameSite("Strict")
+                .build();
+
+        return responseCookie.toString();
     }
 }

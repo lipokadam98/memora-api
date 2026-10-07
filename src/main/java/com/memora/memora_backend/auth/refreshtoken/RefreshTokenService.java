@@ -6,4 +6,5 @@ public interface RefreshTokenService {
     String generateRefreshToken(User user);
     String generateRefreshToken(User user,String refreshToken);
     RefreshToken getRefreshTokenDetails(String refreshToken);
+    String createRefreshTokenCookie(String refreshToken);
 }

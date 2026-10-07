@@ -43,7 +43,6 @@ public class AuthenticationControllerTest {
 
     private final UserDto userDto = UserDto.builder().id(1L).email("test@example.com").build();
     private final LoginResponse loginResponse = LoginResponse.builder().token("mocked-jwt-token").build();
-    private final RefreshTokenResponse refreshTokenResponse = RefreshTokenResponse.builder().token("mocked-refresh-token").build();
 
     @Test
     @WithMockUser
@@ -102,9 +101,9 @@ public class AuthenticationControllerTest {
     @Test
     @WithMockUser
     @DisplayName("POST /api/auth/refresh-token - Should refresh token")
-    void testRefreshToken_Authorized() throws Exception {
+    void testReauthenticate_Authorized() throws Exception {
 
-        when(authenticationService.refreshToken(anyString())).thenReturn(refreshTokenResponse);
+        when(authenticationService.reauthenticate(anyString())).thenReturn(loginResponse);
 
         mockMvc.perform(post("/api/auth/refresh-token")
                         .param("refreshToken", "mocked-refresh-token")

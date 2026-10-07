@@ -1,11 +1,14 @@
 package com.memora.memora_backend.auth;
 
-import com.memora.memora_backend.auth.dto.*;
+import com.memora.memora_backend.auth.dto.LoginResponse;
+import com.memora.memora_backend.auth.dto.LoginUserDto;
+import com.memora.memora_backend.auth.dto.RegisterUserDto;
+import com.memora.memora_backend.auth.dto.UserDto;
 import com.memora.memora_backend.auth.jwt.JwtService;
 import com.memora.memora_backend.auth.refreshtoken.RefreshTokenService;
+import com.memora.memora_backend.user.Role;
 import com.memora.memora_backend.user.User;
 import com.memora.memora_backend.user.UserRepository;
-import com.memora.memora_backend.user.Role;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +19,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 
 @Service
 @AllArgsConstructor
@@ -76,43 +77,40 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User authenticatedUser = userRepository.findByEmail(input.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("Resolved identity contextual state absent for identifier: " + input.getEmail()));
 
-        UserDto userDto = UserDto.builder()
-                .id(authenticatedUser.getId())
-                .email(authenticatedUser.getEmail())
-                .fullName(authenticatedUser.getFullName())
-                .userName(authenticatedUser.getUsername())
-                .build();
-
-        String jwtToken = jwtService.generateToken(authenticatedUser);
-
         String refreshToken = refreshTokenService.generateRefreshToken(authenticatedUser);
 
-        // Extract exact expiration bounds straight out of token metadata parameters rather than guessing via system clock mutations
-        Date expirationDate = jwtService.extractExpiration(jwtToken);
-
-        return LoginResponse.builder()
-                .token(jwtToken)
-                .refreshToken(refreshToken)
-                .user(userDto)
-                .expiresAt(expirationDate)
-                .build();
+        return createLoginresponse(authenticatedUser,refreshToken);
     }
 
     @Override
     @Transactional
-    public RefreshTokenResponse refreshToken(String refreshToken) {
-        var tokenDetails = refreshTokenService.getRefreshTokenDetails(refreshToken);
+    public LoginResponse reauthenticate(String oldRefreshToken) {
+        var tokenDetails = refreshTokenService.getRefreshTokenDetails(oldRefreshToken);
         var user = userRepository.findById(tokenDetails.getUser().getId()).orElse(null);
 
         if(user == null){
             throw new EntityNotFoundException("User not found during token refresh");
         }
 
+        String refreshToken = refreshTokenService.generateRefreshToken(user, oldRefreshToken);
+
+        return createLoginresponse(user,refreshToken);
+    }
+
+    private LoginResponse createLoginresponse(User user, String refreshToken){
+        UserDto userDto = UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .userName(user.getUsername())
+                .build();
+
         String jwtToken = jwtService.generateToken(user);
 
-        return RefreshTokenResponse.builder()
+        return LoginResponse.builder()
                 .token(jwtToken)
-                .refreshToken(refreshTokenService.generateRefreshToken(user,refreshToken))
+                .refreshToken(refreshToken)
+                .user(userDto)
                 .expiresAt(jwtService.extractExpiration(jwtToken))
                 .build();
     }
